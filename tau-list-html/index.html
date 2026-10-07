@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0B1220">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="T'au Sheets">
+
+<title>Retaliation — T'au Cadre Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1220; --panel:#111B2E; --panel2:#16233A; --line:#233350;
+  --text:#E8EEF5; --dim:#8A98B0; --cyan:#6FD3E8; --cyan-dim:#2E6E7E;
+  --ochre:#F2B84B; --red:#E05A4F; --green:#7DD3A1;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --disp:"Rajdhani",var(--sans);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.35}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* ---------- top rail ---------- */
+.rail{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0B1220 82%,rgba(11,18,32,0));padding:env(safe-area-inset-top,0) 12px 10px}
+.rail-in{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.army{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.army h1{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em;margin:0;text-transform:uppercase}
+.army h1 small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--dim);letter-spacing:.08em;margin-left:8px}
+.army .pts{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.rounds{display:flex;align-items:center;gap:6px;margin-top:10px}
+.rounds .lbl{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-right:4px}
+.rounds button{flex:1;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-family:var(--disp);font-size:18px;font-weight:600;color:var(--dim);position:relative}
+.rounds button.on{background:var(--cyan);color:#06111A;border-color:var(--cyan)}
+.rounds button.kauyon::after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:14px;height:2px;background:var(--ochre);border-radius:2px}
+.rounds button.on.kauyon::after{background:#06111A}
+.railnote{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.railnote b{color:var(--ochre);font-weight:500}
+.armytog{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* ---------- toggles ---------- */
+.tog{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.02em;min-height:32px}
+.tog i{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.tog.on{border-color:var(--cyan);color:var(--text)}
+.tog.on i{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.tog.warn.on{border-color:var(--ochre)}
+.tog.warn.on i{background:var(--ochre);box-shadow:0 0 8px var(--ochre)}
+
+/* ---------- unit list ---------- */
+main{padding:4px 12px 60px}
+.unit{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.unit.dead{opacity:.45}
+.uhead{width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 14px;text-align:left;align-items:center}
+.uhead .n{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;line-height:1.1}
+.uhead .sub{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.uhead .cnt{font-family:var(--mono);font-size:15px;font-weight:600;text-align:right;white-space:nowrap}
+.uhead .cnt small{display:block;font-size:10px;color:var(--dim);font-weight:400;letter-spacing:.1em}
+.uhead .cnt.low{color:var(--ochre)}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:#1D3A46;color:var(--cyan)}
+.chip.o{background:#3B2E12;color:var(--ochre)}
+.chip.r{background:#3E1E1C;color:#F09A92}
+.ubody{border-top:1px solid var(--line);padding:12px 14px 14px}
+
+/* stat line */
+.stats{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center}
+.stat b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim);font-weight:500}
+.stat span{display:block;font-family:var(--disp);font-size:20px;font-weight:700;line-height:1.1;margin-top:2px}
+.stat.mod span{color:var(--ochre)}
+.stat.hurt span{color:var(--red)}
+.statlabel{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin:8px 0 4px}
+
+.blk{border:1px solid var(--line);border-radius:12px;padding:10px 10px 4px;margin-bottom:10px;background:rgba(0,0,0,.15)}
+.blkh{font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.blk .stats{margin-bottom:8px}
+/* toggles row */
+.utogs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+
+/* model groups */
+.groups{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.grp{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.grp .gn{font-weight:500;font-size:14px}
+.grp .gl{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:2px}
+.ctr{display:flex;align-items:center;gap:2px}
+.ctr button{width:40px;height:36px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-family:var(--disp);font-size:22px;font-weight:600;line-height:1}
+.ctr button:active{background:var(--cyan-dim)}
+.ctr .v{min-width:44px;text-align:center;font-family:var(--mono);font-size:17px;font-weight:600}
+.ctr .v small{color:var(--dim);font-weight:400;font-size:12px}
+.wctr{display:flex;align-items:center;gap:6px;margin-top:6px;grid-column:1/-1}
+.wctr .bar{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.wctr .bar i{display:block;height:100%;background:var(--green);transition:width .15s}
+.wctr .bar i.mid{background:var(--ochre)}.wctr .bar i.low{background:var(--red)}
+.wctr button{width:34px;height:30px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);font-family:var(--disp);font-size:18px;font-weight:600}
+.wctr .v{font-family:var(--mono);font-size:13px;min-width:52px;text-align:center}
+
+/* weapon tables */
+.wt{margin-bottom:8px}
+.wt .hd,.wt .row{display:grid;grid-template-columns:1fr 46px 40px 40px 34px 34px 44px;gap:2px;align-items:center}
+.wt .hd{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim);padding:0 0 4px;border-bottom:1px solid var(--line);text-transform:uppercase}
+.wt .hd div:not(:first-child),.wt .row .c{text-align:center}
+.wt .hd div:first-child{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--cyan);font-weight:600}
+.wt .row{padding:7px 0;border-bottom:1px dashed var(--line)}
+.wt .row:last-child{border-bottom:0}
+.wt .row.gone{opacity:.32}
+.wt .row.buff{background:linear-gradient(90deg,rgba(242,184,75,.14),transparent);border-radius:6px;padding-left:6px;margin-left:-6px}
+.wt .wn{font-weight:500;font-size:14px;line-height:1.15}
+.wt .wn .x{font-family:var(--mono);color:var(--cyan);font-size:12px;margin-left:4px}
+.wt .wn .kw{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px;line-height:1.3}
+.wt .wn .kw .plus{color:var(--ochre)}
+.wt .c{font-family:var(--mono);font-size:14px;font-weight:500}
+.wt .c.mod{color:var(--ochre);font-weight:600}
+.wt .c.haz{color:var(--red)}
+
+/* abilities */
+.ab{margin-top:10px}
+.ab h4{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--cyan);margin:0 0 4px;font-weight:600;text-transform:uppercase}
+.ab h4.o{color:var(--ochre)}
+.ab ul{margin:0;padding:0;list-style:none}
+.ab li{padding:5px 0;border-bottom:1px dashed var(--line);font-size:13.5px;line-height:1.35}
+.ab li:last-child{border-bottom:0}
+.ab li b{font-weight:600;color:var(--text)}
+.ab li.core{color:var(--dim)}
+.ab li .tag{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;background:#3B2E12;color:var(--ochre);margin-right:6px;vertical-align:1px}
+.ab li .tag.auto{background:#1D3A46;color:var(--cyan)}
+
+.foot{padding:16px 12px 40px;font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.5}
+.foot button{color:var(--red);text-decoration:underline}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="rail"><div class="rail-in">
+  <div class="army"><h1>Retaliation <small>T'AU · RETALIATION CADRE</small></h1><div class="pts">1995 pts</div></div>
+  <div class="rounds"><span class="lbl">Round</span><div id="rounds" style="display:contents"></div></div>
+  <div class="railnote"><span id="roundnote"></span></div>
+  <div class="armytog" id="armytog"></div>
+</div></div>
+<main id="list"></main>
+<div class="foot">
+  Datasheets: Wahapedia, 40k 11th ed, T'au Faction Pack v1.2 (Sep 2026). Detachment: Retaliation Cadre. Rules are short reminders, not full text.
+  Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
+  <br><br><button id="reset">Reset game (full models, wounds, round 1)</button>
+</div>
+
+<script>
+// ===================== WEAPON REGISTRY =====================
+// R = ranged, M = melee.  [range, A, BS/WS, S, AP, D, keywords]
+const W = {
+  pulse_blaster:["Pulse blaster","R",10,"2","3+","6","-1","1",["Assault"]],
+  pulse_pistol:["Pulse pistol","R",12,"1","4+","5","0","1",["Pistol"]],
+  support_turret:["Support turret (Shas'ui, stationary)","R",30,"2","5+","5","0","1",["Indirect Fire","Twin-linked"]],
+  ccw1:["Close combat weapon","M",0,"1","5+","3","0","1",[]],
+  fireblade_rifle:["Fireblade pulse rifle","R",30,"1","3+","5","0","2",["Rapid Fire 1"]],
+  ccw_fb:["Close combat weapon","M",0,"3","4+","3","0","1",[]],
+  gun_drone:["Gun drone (twin pulse carbine)","R",20,"2","5+","5","0","1",["Assault","Twin-linked"]],
+  hi_plasma:["High-intensity plasma rifle","R",24,"2","2+","8","-3","3",[]],
+  dawn_strike:["Dawn Blade – strike","M",0,"4","2+","10","-2","3",[]],
+  dawn_sweep:["Dawn Blade – sweep","M",0,"8","2+","6","-1","1",[]],
+  fusion_blaster:["Fusion blaster","R",12,"1","4+","9","-4","D6",["Melta 2"]],
+  fists_crisis:["Battlesuit fists","M",0,"3","5+","5","0","1",[]],
+  cib_std:["Cyclic ion blaster – standard","R",18,"3","3+","7","-1","1",[]],
+  cib_oc:["Cyclic ion blaster – overcharge","R",18,"3","3+","8","-2","2",["Hazardous"]],
+  plasma_rifle_enf:["Plasma rifle","R",18,"1","3+","8","-3","3",[]],
+  fists_cmdr:["Battlesuit fists","M",0,"3","4+","5","0","1",[]],
+  missile_pod:["Missile pod","R",30,"2","4+","7","-1","2",[]],
+  plasma_rifle:["Plasma rifle","R",18,"1","4+","8","-3","3",[]],
+  kroot_long_gun:["Kroot long gun","R",36,"1","3+","6","-2","3",["Heavy","Precision"]],
+  ccw_ls:["Close combat weapon","M",0,"3","3+","4","0","1",[]],
+  kalamandra:["Kalamandra's bite","M",0,"4","4+","5","-1","1",["Extra Attacks"]],
+  fusion_elim:["Fusion eliminator","R",18,"2","2+","10","-4","D6",["Melta 2"]],
+  xv_pistol:["XV pulse pistol","R",12,"2","2+","6","-1","2",["Rapid Fire 2"]],
+  shardstorm:["Shardstorm burst system","R",18,"D6","2+","5","0","1",["Pistol"]],
+  mv15:["MV15 gun drone (twin pulse blaster)","R",10,"2","5+","6","-1","1",["Assault","Twin-linked"]],
+  ion_scat_std:["Ion scattercannon – standard","R",18,"4","2+","7","-2","2",["Rapid Fire 2"]],
+  ion_scat_oc:["Ion scattercannon – overcharge","R",18,"4","2+","8","-3","3",["Rapid Fire 2","Hazardous"]],
+  fusion_elim_m:["Fusion eliminator","M",0,"1","4+","10","-4","D6+2",["Extra Attacks"]],
+  ion_scat_m:["Ion scattercannon","M",0,"3","4+","7","-2","2",["Extra Attacks"]],
+  xv_pistol_m:["XV pulse pistol","M",0,"4","3+","6","-1","2",[]],
+  acc_burst:["Accelerator burst cannon","R",18,"4","4+","6","-1","1",[]],
+  twin_pulse_carbine:["Twin pulse carbine","R",20,"2","4+","5","0","1",["Assault","Twin-linked"]],
+  armoured_hull:["Armoured hull","M",0,"3","5+","6","0","1",[]],
+  heavy_rail:["Heavy rail rifle","R",60,"2","4+","12","-4","D6+1",["Heavy","Devastating Wounds"]],
+  seeker:["Seeker missile","R",48,"1","4+","14","-3","D6+1",["One Shot"]],
+  twin_plasma:["Twin plasma rifle","R",18,"1","4+","8","-3","3",["Twin-linked"]],
+  crushing_bulk:["Crushing bulk","M",0,"3","5+","6","0","1",[]],
+  missile_drone:["Missile drone (missile pod)","R",30,"2","5+","7","-1","2",[]],
+  cir_std:["Cyclic ion raker – standard","R",36,"6","4+","7","-1","2",[]],
+  cir_oc:["Cyclic ion raker – overcharge","R",36,"6","4+","8","-2","3",["Hazardous"]],
+  twin_burst:["Twin burst cannon","R",18,"4","4+","5","0","1",["Twin-linked"]],
+  ghostkeel_fists:["Ghostkeel fists","M",0,"3","5+","6","0","2",[]],
+  railgun:["Railgun","R",72,"1","4+","20","-5","D6+6",["Heavy","Devastating Wounds"]],
+  kroot_rifle:["Kroot rifle","R",24,"1","4+","4","0","1",["Rapid Fire 1"]],
+  tanglebomb:["Tanglebomb launcher","R",24,"D3","4+","5","0","1",["Blast"]],
+  kroot_pistol:["Kroot pistol","R",12,"1","4+","4","0","1",["Pistol"]],
+  ccw_kroot:["Close combat weapon","M",0,"2","3+","4","0","1",[]],
+  fs_firearm:["Farstalker firearm","R",24,"1","4+","4","0","1",["Rapid Fire 1"]],
+  londaxi:["Londaxi tribalest","R",18,"3","5+","7","-1","1",["Anti-vehicle 4+","Devastating Wounds","Heavy"]],
+  tau_tech:["T'au-tech rifle","R",30,"1","4+","5","0","1",["Rapid Fire 1"]],
+  ripping_fangs:["Ripping fangs","M",0,"3","3+","3","0","1",[]],
+  ritual_blade:["Ritual blade","M",0,"3","3+","5","0","1",[]],
+  kroot_pistol_jav:["Kroot pistol & hunting javelins","R",12,"2","4+","4","0","1",["Assault","Pistol"]],
+  hunting_blades:["Hunting blades","M",0,"3","3+","4","-1","1",["Lance"]],
+  rampager_fists:["Rampager fists","M",0,"4","3+","6","-1","2",["Extra Attacks","Sustained Hits 1"]],
+  repeater:["Repeater cannon","R",36,"2","4+","7","-1","2",["Rapid Fire 2"]],
+  krootox_fists:["Krootox fists","M",0,"4","3+","6","-1","2",["Extra Attacks"]],
+  pulse_carbine:["Pulse carbine","R",20,"2","4+","5","0","1",[]],
+  rail_rifle:["Rail rifle","R",30,"1","5+","10","-4","3",["Devastating Wounds","Heavy"]],
+  sagl_emp:["Semi-auto grenade launcher – EMP","R",18,"1","4+","3","0","1",["Anti-vehicle 4+","Devastating Wounds"]],
+  sagl_fus:["Semi-auto grenade launcher – fusion","R",18,"1","4+","6","-1","3",[]],
+  ccw_pf:["Close combat weapon","M",0,"1","5+","3","0","1",[]],
+  ion_acc_std:["Ion accelerator – standard","R",72,"6","4+","9","-2","3",[]],
+  ion_acc_sc:["Ion accelerator – supercharge","R",72,"6","4+","10","-3","4",["Hazardous"]],
+  riptide_fists:["Riptide fists","M",0,"6","5+","6","0","2",[]],
+  burst_cannon:["Burst cannon","R",18,"4","4+","5","0","1",[]],
+  fists_stealth:["Battlesuit fists","M",0,"2","5+","4","0","1",[]],
+};
+
+// ===================== UNITS =====================
+// groups: [{id,name,count,W,weapons:{wid:perModel},leader?,note?,stats?}]
+// stats: [M,T,Sv,W,Ld,OC,Inv]
+// tags: ftgg (can be Guided), ml (has MARKERLIGHT), tau (T'au Empire keyword, Kauyon applies), epc (battlesuit character +6"), kroot
+const UNITS = [
+ {id:"breachers",name:"Breacher Team",role:"Battleline",pts:140,tags:["ftgg","ml","tau"],
+  buffs:[{key:"bnc",label:"Target within range of an objective (Breach and Clear)",chip:"Re-roll wounds",ranged:["+Re-roll wounds"],melee:["+Re-roll wounds"]}],
+  stats:["6\"","3","4+","1","7+","2","–"],
+  leader:{name:"Cadre Fireblade",stats:["6\"","3","4+","3","7+","1","–"],W:3,weapons:{fireblade_rifle:1,ccw_fb:1},
+    ab:[["Volley Fire","+1 Attack on every ranged weapon in this unit while he leads (applied).","auto"],
+        ["Crack Shot","His own ranged attacks: AP becomes -3 on a Critical Wound.","man"]]},
+  groups:[
+    {id:"ui",name:"Breacher Shas'ui",lbl:"guardian drone · gun drone",count:1,max:1,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,gun_drone:1,ccw1:1}},
+    {id:"fw",name:"Breacher Fire Warriors",count:9,max:9,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,ccw1:1}}],
+  extras:{stationary:{label:"Remained stationary (DS8 turret)",group:"ui",weapon:"support_turret"}},
+  ab:[["Breach and Clear","Re-roll Wound rolls vs enemy within range of an objective (use the toggle).","auto"],
+      ["Guardian Drone","Enemy ranged attacks at this unit: -1 to Wound.","man"],
+      ["Markerlight","This unit has MARKERLIGHT natively — its spotting grants Ignores Cover.","man"],
+      ["DS8 Support Turret","Toggle above when the unit Remains Stationary.","auto"]],
+  core:[]},
+
+ {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:215,tags:["ftgg","ml","tau","bs"],
+  staticKw:[{ranged:["+Re-roll hit 1s"]}],
+  buffs:[{key:"full",label:"Target is at full Starting Strength (Fireknife)",chip:"Re-roll all hits",ranged:["+Re-roll hits"],removes:["+Re-roll hit 1s"]}],
+  stats:["10\"","5","3+","4","7+","2","–"],
+  leader:{name:"Commander in Enforcer Battlesuit",stats:["8\"","5","2+","6","7+","2","4+"],W:6,weapons:{cib_std:1,cib_oc:1,plasma_rifle_enf:1,fists_cmdr:1},
+    ab:[["Enforcer Commander","Enemy ranged attacks at this unit: worsen their AP by 1 while he leads.","man"],
+        ["Starflare Ignition System","End of your opponent's turn, if the unit isn't in engagement range: remove it into Strategic Reserves.","man"],
+        ["Shield Generator","4+ invulnerable on the Commander only.","auto"],
+        ["Battlesuit Support System","Unit may shoot after Falling Back, but only the Commander fires.","man"],
+        ["Cyclic ion blaster","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"]]},
+  groups:[
+    {id:"vre",name:"Fireknife Shas'vre (marker + shield drone, W5)",lbl:"missile pod · plasma rifle",count:1,max:1,W:5,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
+    {id:"ui1",name:"Fireknife Shas'ui A (marker drone)",lbl:"missile pod · plasma rifle",count:1,max:1,W:4,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
+    {id:"ui2",name:"Fireknife Shas'ui B (shield drone, W5)",lbl:"missile pod · plasma rifle",count:1,max:1,W:5,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}}],
+  ab:[["Fireknife","Ranged: re-roll Hit rolls of 1 (shown). Vs a target at full Starting Strength, re-roll all Hit rolls (use the toggle).","auto"],
+      ["Marker Drones","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
+  core:["Deep Strike"]},
+
+ {id:"sunforge",name:"Crisis Sunforge",role:"Battlesuits · +Commander Farsight",pts:195,tags:["ftgg","ml","tau","bs"],
+  buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (Sunforge)",chip:"Re-roll wounds & damage",ranged:["+Re-roll wounds","+Re-roll damage"]},
+         {key:"sb",label:"Target within 9\" (Way of the Short Blade)",chip:"+1 to wound",ranged:["+1 to wound"],melee:["+1 to wound"],leader:true}],
+  stats:["10\"","5","3+","4","7+","2","4+"],
+  leader:{name:"Commander Farsight",stats:["10\"","5","2+","8","6+","2","4+"],W:8,weapons:{hi_plasma:1,dawn_strike:1,dawn_sweep:1},
+    ab:[["Way of the Short Blade","+1 to Wound on all this unit's attacks vs targets within 9\" while he leads (use the toggle).","auto"],
+        ["Puretide's Teachings","Once per battle round, a Stratagem used on this unit costs 1 CP less.","man"],
+        ["Independent Power","No Ethereals in the army.","info"]]},
+  groups:[
+    {id:"vre",name:"Sunforge Shas'vre (marker + shield drone, W5)",lbl:"2 fusion",count:1,max:1,W:5,weapons:{fusion_blaster:2,fists_crisis:1}},
+    {id:"ui1",name:"Sunforge Shas'ui A (marker drone)",lbl:"2 fusion",count:1,max:1,W:4,weapons:{fusion_blaster:2,fists_crisis:1}},
+    {id:"ui2",name:"Sunforge Shas'ui B (shield drone, W5)",lbl:"2 fusion",count:1,max:1,W:5,weapons:{fusion_blaster:2,fists_crisis:1}}],
+  ab:[["Sunforge","Ranged vs MONSTER or VEHICLE: re-roll Wound rolls and Damage rolls (use the toggle).","auto"],
+      ["Marker Drones","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
+  core:["Deep Strike","4+ invulnerable save"]},
+
+ {id:"twinlance",name:"The Twin Lance",role:"Epic Hero · Ri'Lantar & Ri'Locai",pts:230,tags:["ftgg","tau","bs"],
+  buffs:[{key:"mk",label:"Shooting the CLOSEST eligible target (Exemplars of Mont'ka)",chip:"Sustained 1 · Ignores Cover",ranged:["+Sustained Hits 1","+Ignores Cover"]}],
+  stats:["10\"","6","2+","8","6+","2","4+"],
+  groups:[
+    {id:"lantar",name:"Ri'Lantar",lbl:"fusion eliminator · shardstorm · XV pistol · MV15 drone",count:1,max:1,W:8,weapons:{fusion_elim:1,shardstorm:1,xv_pistol:1,mv15:1,fusion_elim_m:1,xv_pistol_m:1}},
+    {id:"locai",name:"Ri'Locai",lbl:"ion scattercannon · shardstorm · XV pistol · MV15 drone",count:1,max:1,W:8,weapons:{ion_scat_std:1,ion_scat_oc:1,shardstorm:1,xv_pistol:1,mv15:1,ion_scat_m:1,xv_pistol_m:1}}],
+  ab:[["Exemplars of Mont'ka","Ranged attacks at the CLOSEST eligible target get Sustained Hits 1 and Ignores Cover (use the toggle).","auto"],
+      ["Neocapacitor Shields","Start of enemy Charge phase: pick a visible non-MONSTER/VEHICLE unit within 12\" – Battle-shock test and -1 to its Charge rolls this turn.","man"],
+      ["Retro-thrusters","End of Fight phase, if it was eligible to fight: Normal move up to 6\" or Fall Back.","man"],
+      ["Ion scattercannon","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"]],
+  core:["Deep Strike","Scouts 8\"","4+ invulnerable save"]},
+
+ {id:"lonespear",name:"Kroot Lone-spear",role:"Mounted Character",pts:80,tags:["tau","kroot"],
+  stats:["12\"","5","5+","6","7+","2","–"],
+  groups:[{id:"m",name:"Kroot Lone-spear",count:1,max:1,W:6,weapons:{kroot_long_gun:1,ccw_ls:1,kalamandra:1}}],
+  ab:[["Advanced Scouting","If its ranged attack hits a unit, other KROOT models re-roll Hit rolls vs that unit until end of turn (toggle it on the other Kroot cards).","man"],
+      ["Fire and Fade","After shooting (if not engaged): Normal move up to 6\", then can't charge this turn.","man"]],
+  core:["Lone Operative","Scouts 7\"","Stealth"]},
+
+ {id:"devilfish",name:"Devilfish",role:"Dedicated Transport",pts:75,tags:["ftgg","tau"],
+  stats:["12\"","9","3+","13","7+","2","–"],
+  groups:[{id:"m",name:"Devilfish",lbl:"2 seeker missiles",count:1,max:1,W:13,weapons:{acc_burst:1,twin_pulse_carbine:2,seeker:2,armoured_hull:1}}],
+  extras:{sk1:{label:"Seeker missile 1 fired (one shot)",decWeapon:"seeker"},sk2:{label:"Seeker missile 2 fired (one shot)",decWeapon:"seeker"}},
+  ab:[["Rapid Deployment","Units can disembark after it has Advanced (they make a shock disembark move).","man"],
+      ["Transport","12 T'AU EMPIRE INFANTRY (no Battlesuits, Kroot or Vespid).","info"]],
+  core:["Deadly Demise D3"]},
+
+ {id:"broadside",name:"Broadside Battlesuit",role:"Battlesuit · single Shas'vre",pts:75,tags:["ftgg","tau","bs"],
+  stats:["5\"","6","2+","8","7+","2","–"],
+  groups:[{id:"m",name:"Broadside Shas'vre",lbl:"2 missile drones · seeker · twin plasma",count:1,max:1,W:8,weapons:{heavy_rail:1,seeker:1,twin_plasma:1,missile_drone:2,crushing_bulk:1}}],
+  extras:{seeker_used:{label:"Seeker missile fired (one shot)",removeWeapon:"seeker"}},
+  ab:[["Advanced Armour","Feel No Pain 4+ against mortal wounds only.","man"],
+      ["Heavy","+1 to hit if it moved 3\" or less, isn't engaged and wasn't set up this turn (use the toggle).","auto"]],
+  core:[]},
+
+ {id:"ghostkeel",name:"Ghostkeel Battlesuit",role:"Battlesuit",pts:165,tags:["ftgg","tau","bs"],
+  stats:["10\"","8","2+","12","7+","3","–"],
+  groups:[{id:"m",name:"Ghostkeel",lbl:"cyclic ion raker · twin burst cannon · BSS",count:1,max:1,W:12,weapons:{cir_std:1,cir_oc:1,twin_burst:1,ghostkeel_fists:1}}],
+  extras:{sd1:{label:"Stealth Drone save used (1 of 2)"},sd2:{label:"Stealth Drone save used (2 of 2)"}},
+  ab:[["Stealth Drones","Twice per battle, after an attack is allocated to this model: change that attack's Damage to 0 (track with toggles).","man"],
+      ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
+      ["Cyclic ion raker","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"],
+      ["Damaged 1–4 W","-1 to Hit on all attacks (auto-flagged on the sheet).","auto"]],
+  core:["Deadly Demise D3","Infiltrators","Lone Operative","Stealth"], dmg:4},
+
+ {id:"hammerhead",name:"Hammerhead Gunship",role:"Vehicle",pts:150,tags:["ftgg","tau"],
+  buffs:[{key:"armour",label:"Target is a MONSTER or VEHICLE (Armour Hunter)",chip:"+1 to hit",hit:true,ranged:["+Armour Hunter +1 applied"],melee:["+Armour Hunter +1 applied"]}],
+  stats:["10\"","10","3+","14","7+","3","–"],
+  groups:[{id:"m",name:"Hammerhead",lbl:"railgun · 2 accelerator burst cannons · 2 seekers",count:1,max:1,W:14,weapons:{railgun:1,acc_burst:2,seeker:2,armoured_hull:1}}],
+  extras:{sk1:{label:"Seeker missile 1 fired (one shot)",decWeapon:"seeker"},sk2:{label:"Seeker missile 2 fired (one shot)",decWeapon:"seeker"}},
+  ab:[["Armour Hunter","+1 to Hit vs MONSTER or VEHICLE targets (use the toggle).","auto"],
+      ["Targeting Array","Each time it's selected to shoot: re-roll one Hit roll or one Wound roll.","man"],
+      ["Damaged 1–5 W","-1 to Hit on all attacks (auto-flagged on the sheet).","auto"]],
+  core:["Deadly Demise D3"], dmg:5},
+
+ {id:"carnivores",name:"Kroot Carnivores",role:"Infantry · 10",pts:65,tags:["tau","kroot"],
+  buffs:[{key:"scout",label:"Target was hit by the Lone-spear (Advanced Scouting)",chip:"Re-roll hits",ranged:["+Re-roll hits"],melee:["+Re-roll hits"]}],
+  stats:["7\"","3","6+","1","7+","2","–"],
+  groups:[
+    {id:"lq",name:"Long-quill",lbl:"kroot rifle · kroot pistol",count:1,max:1,W:1,weapons:{kroot_rifle:1,kroot_pistol:1,ccw_kroot:1}},
+    {id:"kc",name:"Kroot Carnivores (rifle)",count:8,max:8,W:1,weapons:{kroot_rifle:1,ccw_kroot:1}},
+    {id:"tb",name:"Carnivore w/ Tanglebomb launcher",count:1,max:1,W:1,weapons:{tanglebomb:1,ccw_kroot:1}}],
+  ab:[["Fieldcraft","End of your Command phase: an objective you control stays yours even after you leave it, until your opponent takes it.","man"]],
+  core:["Scouts 7\"","Stealth"]},
+
+ {id:"farstalkers",name:"Kroot Farstalkers",role:"Infantry · Kill-broker + 9 + 2 hounds",pts:75,tags:["tau","kroot"],
+  staticKw:[{ranged:["+Ignores Cover"],ifGroup:"pech"}],
+  buffs:[{key:"bounty",label:"Attacking the Bounty Hunters target",chip:"Lethal + Precision",ranged:["+Lethal Hits","+Precision"],melee:["+Lethal Hits","+Precision"]},{key:"scout",label:"Target was hit by the Lone-spear (Advanced Scouting)",chip:"Re-roll hits",ranged:["+Re-roll hits"],melee:["+Re-roll hits"]}],
+  stats:["7\"","3","6+","1","7+","1","–"],
+  groups:[
+    {id:"kb",name:"Kroot Kill-broker",lbl:"T'au-tech rifle · ritual blade",count:1,max:1,W:1,weapons:{tau_tech:1,kroot_pistol:1,ritual_blade:1}},
+    {id:"pech",name:"Farstalker w/ Pech'ra",lbl:"firearm · grants Ignores Cover while alive",count:1,max:1,W:1,weapons:{fs_firearm:1,kroot_pistol:1,ccw_kroot:1}},
+    {id:"fs",name:"Farstalkers (firearm)",count:7,max:7,W:1,weapons:{fs_firearm:1,kroot_pistol:1,ccw_kroot:1}},
+    {id:"lx",name:"Farstalker w/ Londaxi tribalest",count:1,max:1,W:1,weapons:{londaxi:1,kroot_pistol:1,ccw_kroot:1}},
+    {id:"hd",name:"Kroot Hounds",lbl:"M12\" · OC0",count:2,max:2,W:1,weapons:{ripping_fangs:1}}],
+  ab:[["Bounty Hunters","Pick one enemy unit at battle start: attacks at it get Lethal Hits + Precision (use the toggle).","auto"],
+      ["Pech'ra","While the Pech'ra bearer lives, the unit's ranged weapons have Ignores Cover (drops off automatically when you remove him).","auto"]],
+  core:["Infiltrators","Stealth"]},
+
+ {id:"rampagers",name:"Krootox Rampagers",role:"Mounted",pts:85,tags:["tau","kroot"],
+  buffs:[{key:"scout",label:"Target was hit by the Lone-spear (Advanced Scouting)",chip:"Re-roll hits",ranged:["+Re-roll hits"],melee:["+Re-roll hits"]}],
+  stats:["7\"","6","5+","5","7+","2","–"],
+  groups:[{id:"m",name:"Krootox Rampagers",count:3,max:3,W:5,weapons:{kroot_pistol_jav:1,hunting_blades:1,rampager_fists:1}}],
+  ab:[["Kroot Linebreakers","After a charge move: pick one engaged enemy unit, roll a D6 per Rampager in engagement range – each 4+ = D3 mortal wounds. If that kills a model, Battle-shock test.","man"],
+      ["Lance (hunting blades)","+1 to Wound in a turn this unit charged (use the toggle).","auto"]],
+  core:["Scouts 7\""]},
+
+ {id:"krootox",name:"Krootox Rider",role:"Mounted · single",pts:45,tags:["tau","kroot"],
+  buffs:[{key:"scout",label:"Target was hit by the Lone-spear (Advanced Scouting)",chip:"Re-roll hits",ranged:["+Re-roll hits"],melee:["+Re-roll hits"]}],
+  stats:["7\"","6","5+","5","7+","2","–"],
+  groups:[{id:"m",name:"Krootox Rider",count:1,max:1,W:5,weapons:{repeater:1,ccw_kroot:1,krootox_fists:1}}],
+  ab:[["Kroot Packmates","Once per turn, enemy Shooting phase: when a KROOT INFANTRY unit within 6\" is targeted, after those attacks this model may shoot that attacker.","man"]],
+  core:["Scouts 7\""]},
+
+ {id:"pathfinders",name:"Pathfinder Team",role:"Infantry · 10",pts:85,tags:["ftgg","ml","tau","pf"],
+  stats:["7\"","3","4+","1","7+","1","–"],
+  groups:[
+    {id:"ui",name:"Pathfinder Shas'ui (2 shield drones, W3)",lbl:"grav-inhibitor drone · grenade launcher · carbine",count:1,max:1,W:3,weapons:{pulse_carbine:1,sagl_emp:1,sagl_fus:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"pc",name:"Pathfinders (carbine)",count:6,max:6,W:1,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"rr",name:"Pathfinders w/ rail rifle",count:3,max:3,W:1,weapons:{rail_rifle:1,pulse_pistol:1,ccw_pf:1}}],
+  ab:[["Target Uploaded","Attacks at THEIR OWN Spotted unit: BS improved by 1 and Ignores Cover (applied when Guided is on).","auto"],
+      ["Grav-inhibitor Drone","Enemies charging this unit get -2 to Charge rolls (not cumulative with other reductions).","man"],
+      ["Grenade launcher","Pick EMP or fusion profile before targeting.","man"]],
+  core:["Scouts 7\""]},
+
+ {id:"riptide",name:"Riptide Battlesuit",role:"Battlesuit",pts:215,tags:["ftgg","tau","bs"],
+  buffs:[{key:"nova",label:"Nova Charge active this phase",chip:"Devastating Wounds",ranged:["+Devastating Wounds (1 weapon)"],marks:"nova"}],
+  stats:["10\"","9","2+","14","7+","4","4+"],
+  groups:[{id:"m",name:"Riptide",lbl:"ion accelerator · twin plasma rifle · 2 missile drones",count:1,max:1,W:14,weapons:{ion_acc_std:1,ion_acc_sc:1,twin_plasma:1,missile_drone:2,riptide_fists:1}}],
+  extras:{nova:{label:"Nova Charge used (once per battle)"}},
+  ab:[["Nova Charge","Once per battle when selected to shoot: ONE ranged weapon gets Devastating Wounds this phase. Turning the toggle on also marks it used.","auto"],
+      ["Weapon Support System","Ignores hit-roll modifiers.","auto"],
+      ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
+      ["Ion accelerator","Pick standard OR supercharge before targeting. Supercharge is Hazardous.","man"],
+      ["Damaged 1–4 W","-1 to Hit on all attacks (auto-flagged on the sheet).","auto"]],
+  core:["Deadly Demise D6","4+ invulnerable save"], dmg:4},
+
+ {id:"stealth",name:"Stealth Battlesuits",role:"Infantry · 5",pts:100,tags:["ftgg","ml","tau","bs"],
+  stats:["8\"","4","3+","2","7+","1","–"],
+  groups:[
+    {id:"vre",name:"Stealth Shas'vre",lbl:"burst cannon · gun drone · marker drone · pulse pistol",count:1,max:1,W:2,weapons:{burst_cannon:1,gun_drone:1,pulse_pistol:1,fists_stealth:1}},
+    {id:"bc",name:"Shas'ui (burst cannon)",lbl:"one carries the homing beacon",count:2,max:2,W:2,weapons:{burst_cannon:1,fists_stealth:1}},
+    {id:"fb",name:"Shas'ui (fusion blaster)",count:2,max:2,W:2,weapons:{fusion_blaster:1,fists_stealth:1}}],
+  extras:{beacon:{label:"Homing Beacon used (once per battle)"}},
+  ab:[["Forward Observers","When this unit is the Observer: the Guided unit re-rolls Hit 1s and Wound 1s vs the Spotted unit (set \"Spotter: Stealth Suits\" on the unit being guided).","auto"],
+      ["Homing Beacon","Once per battle: Rapid Ingress for 0 CP, set up within 3\" of this unit and >8\" from enemies.","man"],
+      ["Marker Drone","Unit has MARKERLIGHT (Ignores Cover for the unit it guides).","man"]],
+  core:["Infiltrators","Stealth"]},
+];
+
+// ===================== STATE =====================
+const KEY="tau-cadre-v3";
+let S=null;
+function fresh(){
+  const s={round:1,open:{},units:{}};
+  for(const u of UNITS){
+    const st={counts:{},wounds:{},leader:!!u.leader,leaderW:0,guided:false,ml:false,heavy:false,bh:0,charged:false,t:{},extras:{}};
+    for(const g of u.groups){st.counts[g.id]=g.count;st.wounds[g.id]=0;}
+    if(u.extras)for(const k in u.extras)st.extras[k]=false;
+    s.units[u.id]=st;
+  }
+  return s;
+}
+async function load(){
+  try{ if(window.storage){const r=await window.storage.get(KEY,false);if(r&&r.value){S=JSON.parse(r.value);}}
+       else if(window.localStorage){const v=localStorage.getItem(KEY);if(v)S=JSON.parse(v);} }catch(e){}
+  if(!S)S=fresh();
+  // merge new units if data changed
+  const f=fresh();for(const k in f.units){if(!S.units[k]){S.units[k]=f.units[k];continue;}
+    for(const g in f.units[k].counts){if(S.units[k].counts[g]===undefined)S.units[k].counts[g]=f.units[k].counts[g];if(S.units[k].wounds[g]===undefined)S.units[k].wounds[g]=0;}
+    if(S.units[k].heavy===undefined)S.units[k].heavy=false;
+    if(S.units[k].bh===undefined)S.units[k].bh=0;
+    if(S.units[k].charged===undefined)S.units[k].charged=false;
+    if(!S.units[k].t)S.units[k].t={};
+    const u=UNITS.find(x=>x.id===k);for(const g of u.groups)if(S.units[k].counts[g.id]>g.max)S.units[k].counts[g.id]=g.max;}
+  render();
+}
+let saveT=null;
+function save(){
+  clearTimeout(saveT);
+  saveT=setTimeout(async()=>{
+    const v=JSON.stringify(S);
+    try{ if(window.storage)await window.storage.set(KEY,v,false); else if(window.localStorage)localStorage.setItem(KEY,v);}catch(e){}
+  },200);
+}
+
+// ===================== HELPERS =====================
+function improve(bs){ if(!/^\d\+$/.test(bs))return bs; return Math.max(2,parseInt(bs)-1)+"+"; }
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function bump(v){ if(!/^-?\d+$/.test(v))return v; return String(parseInt(v)+1); }
+function apUp(v){ if(!/^-?\d+$/.test(v))return v; return String(parseInt(v)-1); }
+function hasHeavy(u,st){ return collectWeapons(u,st).some(r=>r.w[1]==="R"&&r.w[8].includes("Heavy")&&r.n>0); }
+function hasLance(u,st){ return collectWeapons(u,st).some(r=>r.w[1]==="M"&&r.w[8].includes("Lance")&&r.n>0); }
+function damaged(u,st){ if(!u.dmg)return false; const g=u.groups[0]; return (g.W-st.wounds[g.id])<=u.dmg && st.counts[g.id]>0; }
+
+// ===================== RENDER =====================
+function render(){
+  // rounds
+  const rr=document.getElementById("rounds");rr.innerHTML="";
+  for(let i=1;i<=5;i++){const b=document.createElement("button");b.textContent=i;
+if(S.round===i)b.classList.add("on");
+    b.onclick=()=>{S.round=i;save();render();};rr.appendChild(b);}
+  document.getElementById("roundnote").innerHTML="<b>BONDED HEROES</b> — battlesuit ranged attacks: +1 S vs targets within 12\", +1 AP too within 8\" (per-unit toggle). Works all game.";
+  document.getElementById("armytog").innerHTML="";
+  // units
+  const list=document.getElementById("list");list.innerHTML="";
+  const alive=u=>{const st=S.units[u.id];return u.groups.reduce((a,g)=>a+st.counts[g.id],0)+(u.leader&&st.leader?1:0)>0;};
+  const order=[...UNITS.filter(alive),...UNITS.filter(u=>!alive(u))];
+  for(const u of order)list.appendChild(unitCard(u,S.units[u.id]));
+}
+function tog(label,on,fn,cls){
+  const b=document.createElement("button");b.className="tog"+(on?" on":"")+(cls?" "+cls:"");
+  b.innerHTML="<i></i>"+esc(label);b.onclick=()=>{fn();save();render();};return b;
+}
+
+function unitCard(u,st){
+  const el=document.createElement("section");el.className="unit";
+  const total=u.groups.reduce((a,g)=>a+st.counts[g.id],0)+(u.leader&&st.leader?1:0);
+  const max=u.groups.reduce((a,g)=>a+g.max,0)+(u.leader?1:0);
+  if(total===0)el.classList.add("dead");
+  const guided=st.guided&&u.tags.includes("ftgg");
+  const chips=[];
+  if(u.tags.includes("bs")&&st.bh===1)chips.push('<span class="chip o">+1 S (≤12")</span>');
+  if(u.tags.includes("bs")&&st.bh===2)chips.push('<span class="chip o">+1 S & AP (≤8")</span>');
+  if(guided)chips.push('<span class="chip">Guided +1 BS</span>');
+  if(st.charged&&hasLance(u,st))chips.push('<span class="chip">Lance +1 wound</span>');
+  for(const b of (u.buffs||[]))if(st.t[b.key]&&!(b.leader&&!st.leader))chips.push(`<span class="chip">${esc(b.chip)}</span>`);
+  const sp=Number(st.ml)||0;
+  if(guided&&sp>=1)chips.push('<span class="chip">Ignores Cover</span>');
+  if(guided&&sp===2)chips.push('<span class="chip">Re-roll 1s (Stealth)</span>');
+  if(u.id==="breachers"&&st.leader)chips.push('<span class="chip">+1 A</span>');
+  if(st.heavy&&hasHeavy(u,st))chips.push('<span class="chip">Heavy +1</span>');
+  if(u.id==="sunforge"&&st.leader)chips.push('<span class="chip o">+1 wound ≤9"</span>');
+  if(damaged(u,st))chips.push('<span class="chip r">Damaged: -1 to hit</span>');
+  if(u.leader&&!st.leader)chips.push('<span class="chip r">leader gone</span>');
+
+  const head=document.createElement("button");head.className="uhead";
+  head.innerHTML=`<div><div class="n">${esc(u.name)}${u.leader?` <span style="color:var(--cyan)">+ ${esc(u.leader.name)}</span>`:""}</div><div class="sub"><span>${esc(u.role)}</span><span>${u.pts} pts</span></div><div class="chips">${chips.join("")}</div></div>
+    <div class="cnt${total<max?" low":""}">${total}<small>/ ${max} MODELS</small></div>`;
+  head.onclick=()=>{S.open[u.id]=!S.open[u.id];save();render();};
+  el.appendChild(head);
+  if(!S.open[u.id])return el;
+
+  const body=document.createElement("div");body.className="ubody";
+  // ---- stat lines
+  const statLine=(label,stats,wLeft,wMax,hurt)=>{
+    const names=["M","T","SV","W","LD","OC","INV"];
+    let h=label?`<div class="statlabel">${esc(label)}</div>`:"";
+    h+='<div class="stats">'+stats.map((v,i)=>{
+      let val=v,cls="";
+      if(i===3&&wMax){val=wLeft+"/"+wMax;if(wLeft<wMax)cls=" hurt";}
+      if(i===5&&u.id==="stormsurge"&&damaged(u,st)){val="3";cls=" hurt";}
+      return `<div class="stat${cls}"><b>${names[i]}</b><span>${val}</span></div>`;}).join("")+"</div>";
+    return h;};
+  let html="";
+  const g0=u.groups[0];
+  const single=u.groups.length===1&&g0.max===1;
+  const allRows=collectWeapons(u,st);
+  const opts={guided};
+  const block=(title,statsHtml,grpId,rows)=>{
+    let b=title?`<div class="blk"><div class="blkh">${esc(title)}</div>`:'<div class="blk">';
+    b+=statsHtml+`<div class="groups" id="${grpId}"></div>`;
+    b+=weaponTable("Ranged",rows.filter(r=>r.w[1]==="R"),u,st,opts);
+    b+=weaponTable("Melee",rows.filter(r=>r.w[1]==="M"),u,st,{});
+    return b+"</div>";};
+  html+='<div class="utogs" id="tg"></div>';
+  if(u.leader){
+    html+=block("Leader — "+u.leader.name, st.leader?statLine(null,u.leader.stats,u.leader.W-st.leaderW,u.leader.W):'', "grpL", allRows.filter(r=>r.leader));
+    html+=block("Bodyguard — "+u.name, statLine(null,u.stats), "grps", allRows.filter(r=>!r.leader));
+  }else{
+    html+=block(null, statLine(null,u.stats,single?g0.W-st.wounds[g0.id]:null,single?g0.W:null), "grps", allRows);
+  }
+  // ---- abilities
+  const abl=[]; 
+  const push=(a)=>abl.push(a);
+  if(u.leader&&st.leader)u.leader.ab.forEach(push);
+  u.ab.forEach(push);
+  if(u.tags.includes("ftgg"))push(["For the Greater Good","Guided vs its Spotted unit: +1 BS (done by toggle). Markerlight Observer adds Ignores Cover. A unit that observed this phase can't be Guided itself.","auto"]);
+  const li=a=>`<li><b>${esc(a[0])}</b> — ${esc(a[1])}</li>`;
+  const rem=abl.filter(a=>a[2]==="man"), auto=abl.filter(a=>a[2]==="auto"), info=abl.filter(a=>a[2]==="info");
+  if(rem.length)html+='<div class="ab"><h4 class="o">Remember — not on the sheet</h4><ul>'+rem.map(li).join("")+"</ul></div>";
+  if(auto.length)html+='<div class="ab"><h4>Already applied on the sheet</h4><ul>'+auto.map(li).join("")+"</ul></div>";
+  if(info.length)html+='<div class="ab"><h4>Notes</h4><ul>'+info.map(li).join("")+"</ul></div>";
+  if(u.core.length)html+='<div class="ab"><h4>Core</h4><ul>'+u.core.map(c=>`<li class="core">${esc(c)}</li>`).join("")+"</ul></div>";
+  body.innerHTML=html;
+
+  // toggles (built as elements)
+  const tg=body.querySelector("#tg");
+  if(u.tags.includes("ftgg")){
+    tg.appendChild(tog("Guided (shooting a Spotted unit)",st.guided,()=>{st.guided=!st.guided;}));
+    const spL=["Spotter: no Markerlight","Spotter: Markerlight (+Ignores Cover)","Spotter: Stealth Suits (+Cover, re-roll 1s)"][Number(st.ml)||0];
+    if(u.id!=="stealth")tg.appendChild(tog(spL,(Number(st.ml)||0)>0,()=>{st.ml=((Number(st.ml)||0)+1)%3;}));
+    else tg.appendChild(tog(spL.replace(" (+Cover, re-roll 1s)",""),(Number(st.ml)||0)>0,()=>{st.ml=((Number(st.ml)||0)+1)%2;}));
+  }
+  if(hasHeavy(u,st))tg.appendChild(tog("Heavy: moved 3\" or less (+1 to hit)",st.heavy,()=>{st.heavy=!st.heavy;}));
+  if(u.tags.includes("bs")){
+    const lbl=["Bonded Heroes: target beyond 12\"","Bonded Heroes: target ≤12\" (+1 S)","Bonded Heroes: target ≤8\" (+1 S & AP)"][st.bh];
+    tg.appendChild(tog(lbl,st.bh>0,()=>{st.bh=(st.bh+1)%3;},"warn"));
+  }
+  if(hasLance(u,st))tg.appendChild(tog("Charged this turn (Lance +1 to wound)",st.charged,()=>{st.charged=!st.charged;}));
+  for(const b of (u.buffs||[])){if(b.leader&&!st.leader)continue;
+    tg.appendChild(tog(b.label,!!st.t[b.key],()=>{st.t[b.key]=!st.t[b.key];if(st.t[b.key]&&b.marks)st.extras[b.marks]=true;}));}
+  if(u.leader)tg.appendChild(tog(u.leader.name.split(" ")[0]==="Commander"?"Commander attached":"Fireblade attached",st.leader,()=>{st.leader=!st.leader;},"warn"));
+  if(u.extras)for(const k in u.extras)tg.appendChild(tog(u.extras[k].label,st.extras[k],()=>{st.extras[k]=!st.extras[k];},"warn"));
+
+  // groups
+  const gr=body.querySelector("#grps");
+  if(u.leader)body.querySelector("#grpL").appendChild(groupRow(u.leader.name,"",st.leader?1:0,1,(d)=>{st.leader=d>0;},u.leader.W,st.leader?st.leaderW:null,(d)=>{st.leaderW=Math.min(u.leader.W-1,Math.max(0,st.leaderW+d));}));
+  for(const g of u.groups){
+    const c=st.counts[g.id];
+    gr.appendChild(groupRow(g.name,g.lbl||"",c,g.max,(d)=>{st.counts[g.id]=Math.min(g.max,Math.max(0,c+d));if(st.counts[g.id]===0)st.wounds[g.id]=0;},
+      g.W>1?g.W:0,(g.W>1&&c>0)?st.wounds[g.id]:null,(d)=>{st.wounds[g.id]=Math.min(g.W-1,Math.max(0,st.wounds[g.id]+d));}));
+  }
+  el.appendChild(body);
+  return el;
+}
+
+function groupRow(name,lbl,count,max,setCount,W,wounds,setWounds){
+  const d=document.createElement("div");d.className="grp";
+  d.innerHTML=`<div><div class="gn">${esc(name)}</div>${lbl?`<div class="gl">${esc(lbl)}</div>`:""}</div>
+    <div class="ctr"><button aria-label="remove model">−</button><div class="v">${count}<small>/${max}</small></div><button aria-label="add model">+</button></div>`;
+  const [m,p]=d.querySelectorAll(".ctr button");
+  m.onclick=()=>{setCount(-1);save();render();};p.onclick=()=>{setCount(+1);save();render();};
+  if(W>1&&wounds!==null){
+    const left=W-wounds,pct=left/W*100,cls=pct<=35?"low":pct<=65?"mid":"";
+    const w=document.createElement("div");w.className="wctr";
+    w.innerHTML=`<button aria-label="take a wound">−</button><div class="bar"><i class="${cls}" style="width:${pct}%"></i></div><div class="v">${left}/${W} W</div><button aria-label="heal a wound">+</button>`;
+    const [a,b]=w.querySelectorAll("button");
+    a.onclick=()=>{setWounds(+1);save();render();};b.onclick=()=>{setWounds(-1);save();render();};
+    d.appendChild(w);
+    if(max>1){const n=document.createElement("div");n.className="gl";n.style.gridColumn="1/-1";n.textContent="Wounds on the damaged model. Kill it with − above when it hits 0.";d.appendChild(n);}
+  }
+  return d;
+}
+
+function collectWeapons(u,st){
+  const map=new Map();
+  const add=(wid,n,leader)=>{const k=(leader?"L:":"")+wid;if(!map.has(k))map.set(k,{w:W[wid],n:0,id:wid,leader:!!leader});map.get(k).n+=n;};
+  if(u.leader&&st.leader)for(const wid in u.leader.weapons)add(wid,u.leader.weapons[wid],true);
+  for(const g of u.groups)for(const wid in g.weapons)add(wid,g.weapons[wid]*st.counts[g.id]);
+  if(u.extras)for(const k in u.extras){const x=u.extras[k];
+    if(x.weapon&&st.extras[k]&&st.counts[x.group]>0)add(x.weapon,1);
+    if(x.removeWeapon&&st.extras[k]&&map.has(x.removeWeapon))map.get(x.removeWeapon).n=0;
+    if(x.decWeapon&&st.extras[k]&&map.has(x.decWeapon)){const e=map.get(x.decWeapon);e.n=Math.max(0,e.n-1);}}
+  return [...map.values()];
+}
+
+function weaponTable(title,rows,u,st,m){
+  if(!rows.length)return "";
+  const dmg=damaged(u,st);
+  let h=`<div class="wt"><div class="hd"><div>${title}</div><div>R</div><div>A</div><div>${title==="Melee"?"WS":"BS"}</div><div>S</div><div>AP</div><div>D</div></div>`;
+  for(const r of rows){
+    const w=r.w; const isR=w[1]==="R";
+    let range=isR?w[2]:"Melee", A=w[3], BS=w[4], SS=w[5], AP=w[6], kw=[...w[8]];
+    let cR=false,cA=false,cB=false,cS=false,cP=false;
+    const isDroneOrTurret=/drone|turret/i.test(w[0]);
+    if(isR){
+      if(u.id==="breachers"&&st.leader){A=String(parseInt(A)+1);cA=true;}
+      if(m.guided&&BS!=="N/A"){BS=improve(BS);cB=true;}
+      if(m.guided&&u.tags.includes("pf")&&BS!=="N/A"){BS=improve(BS);}
+      if(u.tags.includes("bs")&&st.bh>=1){SS=bump(SS);cS=true;}
+      if(u.tags.includes("bs")&&st.bh===2){AP=apUp(AP);cP=true;}
+      const spv=Number(st.ml)||0;
+      if(m.guided&&spv>=1&&!kw.includes("Ignores Cover"))kw.push("+Ignores Cover");
+      if(m.guided&&spv===2){kw.push("+Re-roll hit 1s","+Re-roll wound 1s");}
+      if(m.guided&&u.tags.includes("pf")&&!kw.includes("Ignores Cover")&&!kw.includes("+Ignores Cover"))kw.push("+Ignores Cover");
+      if(st.heavy&&kw.includes("Heavy")&&BS!=="N/A"){BS=improve(BS);cB=true;kw.push("+Heavy +1 applied");}
+    }
+    let buff=false;
+    if(!isR&&st.charged&&kw.includes("Lance")){kw.push("+1 to wound (charged)");buff=true;}
+    for(const sk of (u.staticKw||[])){
+      if(sk.ifGroup&&!(st.counts[sk.ifGroup]>0))continue;
+      const add=isR?sk.ranged:sk.melee; if(!add)continue;
+      for(const k of add){const base=k.replace(/^\+/,"");if(!kw.includes(base)&&!kw.includes(k))kw.push(k);}
+    }
+    for(const b of (u.buffs||[])){
+      if(!st.t[b.key]||(b.leader&&!st.leader))continue;
+      if(b.removes&&(isR?b.ranged:b.melee))kw=kw.filter(k=>!b.removes.includes(k));
+      const add=isR?b.ranged:b.melee; if(!add)continue;
+      if(b.hit&&BS!=="N/A"){BS=improve(BS);cB=true;}
+      for(const k of add){const base=k.replace(/^\+/,"");if(!kw.includes(base)&&!kw.includes(k))kw.push(k);}
+      buff=true;
+    }
+    if(dmg)kw.push("−1 to hit (damaged)");
+    const rangeStr=isR?range+'"':"Melee";
+    const kwHtml=kw.map(k=>k.startsWith("+")||k.startsWith("−")?`<span class="plus">${esc(k)}</span>`:esc(k)).join(" · ");
+    h+=`<div class="row${r.n===0?" gone":""}${buff?" buff":""}"><div class="wn">${esc(w[0])}<span class="x">×${r.n}</span>${kw.length?`<span class="kw">${kwHtml}</span>`:""}</div>
+      <div class="c${cR?" mod":""}">${rangeStr}</div><div class="c${cA?" mod":""}">${A}</div><div class="c${cB?" mod":""}">${BS}</div>
+      <div class="c${cS?" mod":""}">${SS}</div><div class="c${cP?" mod":""}">${AP}</div><div class="c${/Hazard/.test(kw.join())?" haz":""}">${w[7]}</div></div>`;
+  }
+  return h+"</div>";
+}
+
+(function(){
+  const b=document.getElementById("reset"); const label=b.textContent; let armed=false,t=null;
+  b.onclick=()=>{
+    if(!armed){armed=true;b.textContent="Tap again to confirm reset";t=setTimeout(()=>{armed=false;b.textContent=label;},3000);return;}
+    clearTimeout(t);armed=false;b.textContent=label;
+    const o=S.open;S=fresh();S.open=o;save();render();window.scrollTo(0,0);
+  };
+})();
+load();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
