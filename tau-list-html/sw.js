@@ -1,5 +1,5 @@
 // Bump VERSION whenever you upload a new index.html so phones pick up the update.
-const VERSION = "tau-sheets-v2";
+const VERSION = "tau-sheets-v3";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
