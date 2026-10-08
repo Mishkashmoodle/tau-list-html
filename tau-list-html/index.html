@@ -497,6 +497,7 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function bump(v){ if(!/^-?\d+$/.test(v))return v; return String(parseInt(v)+1); }
 function apUp(v){ if(!/^-?\d+$/.test(v))return v; return String(parseInt(v)-1); }
 function hasHeavy(u,st){ return collectWeapons(u,st).some(r=>r.w[1]==="R"&&r.w[8].includes("Heavy")&&r.n>0); }
+function closeIfDead(u,st){ const n=u.groups.reduce((a,g)=>a+st.counts[g.id],0)+(u.leader&&st.leader?1:0); if(n===0)S.open[u.id]=false; }
 function hasLance(u,st){ return collectWeapons(u,st).some(r=>r.w[1]==="M"&&r.w[8].includes("Lance")&&r.n>0); }
 function damaged(u,st){ if(!u.dmg)return false; const g=u.groups[0]; return (g.W-st.wounds[g.id])<=u.dmg && st.counts[g.id]>0; }
 
@@ -618,10 +619,10 @@ function unitCard(u,st){
 
   // groups
   const gr=body.querySelector("#grps");
-  if(u.leader)body.querySelector("#grpL").appendChild(groupRow(u.leader.name,"",st.leader?1:0,1,(d)=>{st.leader=d>0;},u.leader.W,st.leader?st.leaderW:null,(d)=>{st.leaderW=Math.min(u.leader.W-1,Math.max(0,st.leaderW+d));}));
+  if(u.leader)body.querySelector("#grpL").appendChild(groupRow(u.leader.name,"",st.leader?1:0,1,(d)=>{st.leader=d>0;closeIfDead(u,st);},u.leader.W,st.leader?st.leaderW:null,(d)=>{st.leaderW=Math.min(u.leader.W-1,Math.max(0,st.leaderW+d));}));
   for(const g of u.groups){
     const c=st.counts[g.id];
-    gr.appendChild(groupRow(g.name,g.lbl||"",c,g.max,(d)=>{st.counts[g.id]=Math.min(g.max,Math.max(0,c+d));if(st.counts[g.id]===0)st.wounds[g.id]=0;},
+    gr.appendChild(groupRow(g.name,g.lbl||"",c,g.max,(d)=>{st.counts[g.id]=Math.min(g.max,Math.max(0,c+d));if(st.counts[g.id]===0)st.wounds[g.id]=0;closeIfDead(u,st);},
       g.W>1?g.W:0,(g.W>1&&c>0)?st.wounds[g.id]:null,(d)=>{st.wounds[g.id]=Math.min(g.W-1,Math.max(0,st.wounds[g.id]+d));}));
   }
   el.appendChild(body);
