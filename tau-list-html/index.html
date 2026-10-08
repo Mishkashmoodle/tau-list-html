@@ -135,6 +135,49 @@ main{padding:4px 12px 60px}
 .foot{padding:16px 12px 40px;font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.5}
 .foot button{color:var(--red);text-decoration:underline}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- bottom tabs + secondaries ---------- */
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:6px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(11,18,32,.96);border-top:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.tabs button{flex:1;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-family:var(--disp);font-size:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);position:relative}
+.tabs button.on{background:var(--cyan);color:#06111A;border-color:var(--cyan)}
+.tabs .badge{position:absolute;top:-7px;right:8px;background:var(--ochre);color:#06111A;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;letter-spacing:0}
+#sec{padding:4px 12px 20px}
+.sbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.sbox h3{font-family:var(--disp);font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin:0 0 6px}
+.seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;height:36px;border-radius:7px;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border:1px solid transparent}
+.seg button.on{background:var(--panel2);color:var(--text);border-color:var(--cyan)}
+.vpbar{display:flex;gap:6px}
+.vpcell{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px;text-align:center}
+.vpcell b{display:block;font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.12em;font-weight:500}
+.vpcell span{font-family:var(--disp);font-size:24px;font-weight:700}
+.vpcell span small{font-size:12px;color:var(--dim);font-weight:500;margin-left:1px}
+.vpcell span.over{color:var(--red)}
+.snote{font-family:var(--mono);font-size:11px;color:var(--ochre);margin:4px 0 8px}
+.snote.dim{color:var(--dim)}
+.scard{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:10px;padding:10px;margin-bottom:8px}
+.scard .sn{font-family:var(--disp);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.scard .st{font-size:13.5px;margin:4px 0 6px;line-height:1.4}
+.scard .sw{font-family:var(--mono);font-size:10.5px;color:var(--ochre);margin-bottom:8px;line-height:1.4}
+.sact{display:flex;gap:6px;flex-wrap:wrap}
+.sact button{min-height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:12px}
+.sact button.vp{border-color:var(--green);color:var(--green)}
+.sact button.warn{border-color:var(--ochre);color:var(--ochre)}
+.search{width:100%;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;padding:0 12px;margin:2px 0 8px;-webkit-appearance:none;appearance:none}
+.search:focus{outline:2px solid var(--cyan);outline-offset:0}
+.pick{display:flex;flex-direction:column;gap:4px}
+.pick button{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:9px;background:var(--bg);border:1px solid var(--line);min-height:46px}
+.pick button.sel{border-color:var(--cyan)}
+.pick button:disabled{opacity:.38}
+.pick .pn{font-weight:600;font-size:14.5px}
+.pick .ph{font-family:var(--mono);font-size:10.5px;color:var(--dim);text-align:right;flex:none}
+.drawbtn{width:100%;height:46px;border-radius:10px;background:var(--cyan);color:#06111A;font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:10px}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.hist li:last-child{border-bottom:0}
+.hist small{font-family:var(--mono);color:var(--dim);font-size:11px}
+.hist button{height:32px;padding:0 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:11.5px;flex:none}
 </style>
 </head>
 <body>
@@ -145,10 +188,12 @@ main{padding:4px 12px 60px}
   <div class="armytog" id="armytog"></div>
 </div></div>
 <main id="list"></main>
+<section id="sec" hidden></section>
+<nav class="tabs" id="tabs"></nav>
 <div class="foot">
   Datasheets: Wahapedia, 40k 11th ed, T'au Faction Pack v1.2 (Sep 2026). Detachment: Retaliation Cadre. Rules are short reminders, not full text.
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
-  <br><br><button id="reset">Reset game (full models, wounds, round 1)</button>
+  <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
 </div>
 
 <script>
@@ -413,7 +458,7 @@ const UNITS = [
 const KEY="tau-cadre-v3";
 let S=null;
 function fresh(){
-  const s={round:1,open:{},units:{}};
+  const s={round:1,open:{},units:{},sec:freshSec(),tab:"units"};
   for(const u of UNITS){
     const st={counts:{},wounds:{},leader:!!u.leader,leaderW:0,guided:false,ml:false,heavy:false,bh:0,charged:false,t:{},extras:{}};
     for(const g of u.groups){st.counts[g.id]=g.count;st.wounds[g.id]=0;}
@@ -434,6 +479,7 @@ async function load(){
     if(S.units[k].charged===undefined)S.units[k].charged=false;
     if(!S.units[k].t)S.units[k].t={};
     const u=UNITS.find(x=>x.id===k);for(const g of u.groups)if(S.units[k].counts[g.id]>g.max)S.units[k].counts[g.id]=g.max;}
+  if(!S.sec)S.sec=freshSec(); if(!S.tab)S.tab="units";
   render();
 }
 let saveT=null;
@@ -468,6 +514,12 @@ if(S.round===i)b.classList.add("on");
   const alive=u=>{const st=S.units[u.id];return u.groups.reduce((a,g)=>a+st.counts[g.id],0)+(u.leader&&st.leader?1:0)>0;};
   const order=[...UNITS.filter(alive),...UNITS.filter(u=>!alive(u))];
   for(const u of order)list.appendChild(unitCard(u,S.units[u.id]));
+  // tabs
+  const tab=S.tab||"units";
+  list.hidden=tab!=="units"; document.querySelector(".foot").hidden=tab!=="units";
+  const secEl=document.getElementById("sec"); secEl.hidden=tab!=="sec"; if(tab==="sec")renderSec();
+  const need=S.sec.mode==="tactical"?Math.max(0,2-secDrawn()):0;
+  document.getElementById("tabs").innerHTML=`<button data-t="units" class="${tab==="units"?"on":""}">Datasheets</button><button data-t="sec" class="${tab==="sec"?"on":""}">Secondaries${need?`<span class="badge">Draw ${need}</span>`:""}</button>`;
 }
 function tog(label,on,fn,cls){
   const b=document.createElement("button");b.className="tog"+(on?" on":"")+(cls?" "+cls:"");
@@ -652,12 +704,112 @@ function weaponTable(title,rows,u,st,m){
   return h+"</div>";
 }
 
+// ===================== SECONDARY MISSIONS (Chapter Approved 2026-27) =====================
+// r1block: must be shuffled back if drawn in round 1 · r1opt: may be shuffled back in round 1
+// r2: only scores from round 2 · fixed: can be picked as a Fixed mission (fvp = fixed VP buttons)
+const SECS=[
+ {id:"noprisoners",n:"No Prisoners",t:"End of a turn: 2VP for each enemy unit destroyed this turn (max 5).",vp:[2,4,5]},
+ {id:"overwhelming",n:"Overwhelming Force",t:"End of a turn: 3VP for each destroyed enemy unit that started the turn on an objective (max 5).",vp:[3,5]},
+ {id:"plunder",n:"Plunder",t:"Action (your Shooting phase, once per turn): a unit in a terrain area outside your territory plunders it. End of your turn: 5VP if you plundered.",vp:[5],wd:"If Cleanse is active you may shuffle this back and redraw."},
+ {id:"display",n:"Display of Might",t:"More of your units than enemy units wholly in No Man's Land (ignore aircraft & battle-shocked): 2VP at end of your turn, or 5VP at end of your opponent's turn.",vp:[2,5]},
+ {id:"outflank",n:"Outflank",t:"End of your turn: a unit within 6\" of a table edge and outside your territory = 3VP; units within 6\" of opposite edges (one outside your territory) = 5VP.",vp:[3,5]},
+ {id:"beacon",n:"Beacon",t:"End of opponent's turn (or end of R5): your beacon unit is on the table outside your deployment zone = 3VP, or outside your territory = 5VP.",vp:[3,5],wd:"Pick your beacon unit now. If it dies you can't score this."},
+ {id:"cleanse",n:"Cleanse",t:"Action on objectives (not your home), completes end of turn if you control it. End of your turn: 1 cleansed = 2VP, 2+ = 5VP.",vp:[2,5],wd:"If Plunder is active you may shuffle this back and redraw."},
+ {id:"grievous",n:"A Grievous Blow",t:"End of a turn: 5VP (Fixed: 4VP) for each enemy unit with starting strength 13+ destroyed this turn (max 5).",vp:[5],fixed:true,fvp:[4],wd:"No enemy units of 13+ models on the table? You may discard and redraw."},
+ {id:"defend",n:"Defend Stronghold",t:"End of opponent's turn (or end of R5): you control your home objective = 3VP, +2VP if no enemies are in your deployment zone.",vp:[3,5],r1block:true,r2:true},
+ {id:"engage",n:"Engage on All Fronts",t:"End of your turn: presence (units wholly in a quarter, not within 6\" of centre) in 3 quarters = 3VP (Fixed 2), in 4 quarters = 5VP (Fixed 4).",vp:[3,5],fixed:true,fvp:[2,4]},
+ {id:"nomansland",n:"Secure No Man's Land",t:"End of your turn: you control 2+ objectives in No Man's Land (not your home) = 5VP.",vp:[5]},
+ {id:"forward",n:"Forward Position",t:"End of your turn: you control the enemy home objective and/or every expansion objective = 5VP.",vp:[5],r1opt:true},
+ {id:"centre",n:"Centre Ground",t:"End of your turn: a unit within 3\" of the centre and no enemies within 3\" = 3VP; no enemies within 6\" = 5VP.",vp:[3,5]},
+ {id:"assassination",n:"Assassination",t:"Tactical: end of a turn, 5VP if an enemy CHARACTER model died this turn (or all are dead). Fixed: 3VP per CHARACTER model killed, +1VP if it had 4+ W.",vp:[5],fixed:true,fvp:[3,4]},
+ {id:"tempting",n:"A Tempting Target",t:"End of your turn: you control your tempting target (a No Man's Land objective your opponent picked) = 5VP.",vp:[5],wd:"Your opponent picks your tempting target now."},
+ {id:"behind",n:"Behind Enemy Lines",t:"End of your turn: 3VP for each unit wholly in the enemy deployment zone (ignore aircraft & battle-shocked; max 5).",vp:[3,5],r1opt:true},
+ {id:"bringitdown",n:"Bring it Down",t:"End of a turn: 5VP (Fixed: 4VP) for each enemy model with 10+ W destroyed this turn (max 5).",vp:[5],fixed:true,fvp:[4],wd:"No enemy models with 10+ W on the table? You may discard and redraw."},
+ {id:"burden",n:"Burden of Trust",t:"When drawn and at the start of each of your turns, assign a guard unit per objective. End of opponent's turn (or end of R5): 2VP per objective still guarded (max 5).",vp:[2,4,5],wd:"Assign your guard units now."},
+];
+const SEC=Object.fromEntries(SECS.map(c=>[c.id,c]));
+function freshSec(){return {mode:"tactical",hand:[],done:[],disc:[],draws:[],cp:0,swapUsed:false,extra:0,fixed:[],fv:{}};}
+function secInDeck(id){const s=S.sec;return ![...s.hand,...s.done,...s.disc].some(h=>h.id===id);}
+function secDrawn(){return S.sec.draws.filter(d=>d.r===S.round&&!d.x).length;}
+function secRoundVP(r){const s=S.sec;
+  if(s.mode==="fixed"){let t=0;for(const id of s.fixed)t+=(s.fv[id]&&s.fv[id][r])||0;return t;}
+  return s.done.filter(d=>d.r===r).reduce((a,d)=>a+d.vp,0);}
+function secTotal(){let t=0;for(let r=1;r<=5;r++)t+=Math.min(15,secRoundVP(r));return Math.min(45,t);}
+function secBlocked(c){return S.round===1&&!!c.r1block;}
+function secAdd(id){const s=S.sec;const x=s.extra>0;if(x)s.extra--;s.hand.push({id,r:S.round});s.draws.push({id,r:S.round,x});}
+function secAct(a,id,v){
+  const s=S.sec;
+  const take=arr=>{const i=arr.findIndex(h=>h.id===id);return i>=0?arr.splice(i,1)[0]:null;};
+  if(a==="add"){if(secInDeck(id)&&!secBlocked(SEC[id])){secAdd(id);S.secq="";}}
+  else if(a==="rand"){const pool=SECS.filter(c=>secInDeck(c.id)&&!secBlocked(c));if(pool.length)secAdd(pool[Math.floor(Math.random()*pool.length)].id);}
+  else if(a==="score"){if(take(s.hand))s.done.push({id,r:S.round,vp:+v});}
+  else if(a==="disc"){if(take(s.hand)){s.disc.push({id,r:S.round,cp:1});s.cp++;}}
+  else if(a==="back"){if(take(s.hand)){const i=s.draws.map(d=>d.id).lastIndexOf(id);if(i>=0)s.draws.splice(i,1);}}
+  else if(a==="swap"){if(!s.swapUsed&&take(s.hand)){s.disc.push({id,r:S.round,swap:1});s.swapUsed=true;s.extra++;}}
+  else if(a==="undo"){let e=take(s.done);if(!e){e=take(s.disc);if(e&&e.cp)s.cp--;if(e&&e.swap){s.swapUsed=false;s.extra=Math.max(0,s.extra-1);}}if(e)s.hand.push({id,r:e.r});}
+  else if(a==="mode"){s.mode=v;}
+  else if(a==="fpick"){const i=s.fixed.indexOf(id);if(i>=0)s.fixed.splice(i,1);else if(s.fixed.length<2)s.fixed.push(id);}
+  else if(a==="fv"){s.fv[id]=s.fv[id]||{};const cur=s.fv[id][S.round]||0;const tot=Object.values(s.fv[id]).reduce((x,y)=>x+y,0);
+    let nv=Math.max(0,cur+(+v));if(tot-cur+nv>20)nv=20-(tot-cur);s.fv[id][S.round]=nv;}
+  save();render();
+}
+function secCard(c,hd){
+  const r1=S.round===1, w=[];
+  if(c.r2)w.push("Only scores from round 2");
+  if(r1&&c.r1opt)w.push("Round 1: you may shuffle this back and draw a new card");
+  if(c.wd&&hd.r===S.round)w.push(c.wd);
+  return `<div class="scard"><div class="sn">${esc(c.n)}</div><div class="st">${esc(c.t)}</div>${w.length?`<div class="sw">${w.map(esc).join(" · ")}</div>`:""}
+  <div class="sact">${c.vp.map(v=>`<button class="vp" data-a="score" data-id="${c.id}" data-v="${v}">Scored ${v}VP</button>`).join("")}
+  <button data-a="disc" data-id="${c.id}">Discard +1CP</button>
+  <button class="${r1&&c.r1opt?"warn":""}" data-a="back" data-id="${c.id}">Shuffle back</button>
+  ${!S.sec.swapUsed?`<button data-a="swap" data-id="${c.id}">Swap (1CP, once)</button>`:""}</div></div>`;
+}
+function renderPick(){
+  const box=document.getElementById("secpick");if(!box)return;
+  const q=(S.secq||"").trim().toLowerCase();
+  const list=SECS.filter(c=>secInDeck(c.id)&&(!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q)));
+  box.innerHTML=list.length?list.map(c=>{const b=secBlocked(c);
+    const hint=b?"Not allowed in round 1":(S.round===1&&c.r1opt)?"Round 1: optional redraw":c.r2?"Scores round 2+":c.vp.join(" / ")+"VP";
+    return `<button data-a="add" data-id="${c.id}" ${b?"disabled":""}><span class="pn">${esc(c.n)}</span><span class="ph">${esc(hint)}</span></button>`;}).join("")
+    :`<div class="snote dim">No matching cards left in your deck.</div>`;
+}
+function renderSec(){
+  const el=document.getElementById("sec"),s=S.sec,r=S.round,rv=secRoundVP(r);
+  let h=`<div class="sbox"><div class="seg"><button data-a="mode" data-v="tactical" class="${s.mode==="tactical"?"on":""}">Tactical</button><button data-a="mode" data-v="fixed" class="${s.mode==="fixed"?"on":""}">Fixed</button></div>
+  <div class="vpbar"><div class="vpcell"><b>ROUND ${r}</b><span class="${rv>15?"over":""}">${Math.min(rv,15)}<small>/15</small></span></div>
+  <div class="vpcell"><b>TOTAL</b><span>${secTotal()}<small>/45</small></span></div>
+  ${s.mode==="tactical"?`<div class="vpcell"><b>CP GAINED</b><span>${s.cp}</span></div>`:""}</div>
+  ${rv>15?`<div class="snote">Over the 15VP round cap: ${rv-15}VP won't count.</div>`:""}</div>`;
+  if(s.mode==="tactical"){
+    const n=secDrawn();
+    h+=`<div class="sbox"><h3>Active secondaries</h3><div class="snote">${n<2?`Round ${r}: draw ${2-n} more card${2-n>1?"s":""} this Command phase.`:`Round ${r}: both cards drawn.`}${s.extra?" Draw your replacement card for the swap.":""}</div>`;
+    h+=s.hand.length?s.hand.map(hd=>secCard(SEC[hd.id],hd)).join(""):`<div class="snote dim">No active secondaries.</div>`;
+    h+=`</div><div class="sbox"><h3>Add the card you drew</h3>
+    <input class="search" id="secq" type="search" placeholder="Search secondaries…" autocomplete="off" autocorrect="off" spellcheck="false" value="${esc(S.secq||"").replace(/"/g,"&quot;")}">
+    <div class="pick" id="secpick"></div>
+    <button class="drawbtn" data-a="rand">Draw a random card for me</button>
+    <div class="snote dim">${SECS.filter(c=>secInDeck(c.id)).length} of 18 cards left in your deck.</div></div>`;
+    const hist=[...s.done.map(d=>({...d,k:"done"})),...s.disc.map(d=>({...d,k:"disc"}))].sort((a,b)=>b.r-a.r);
+    if(hist.length)h+=`<div class="sbox"><h3>Used cards</h3><ul class="hist">`+hist.map(e=>`<li><span><b>${esc(SEC[e.id].n)}</b> <small>R${e.r} · ${e.k==="done"?e.vp+"VP":e.swap?"swapped (1CP)":"discarded +1CP"}</small></span><button data-a="undo" data-id="${e.id}">Undo</button></li>`).join("")+`</ul></div>`;
+  }else{
+    h+=`<div class="sbox"><h3>Pick 2 fixed missions</h3><div class="pick">`+SECS.filter(c=>c.fixed).map(c=>{const on=s.fixed.includes(c.id);
+      return `<button data-a="fpick" data-id="${c.id}" class="${on?"sel":""}" ${!on&&s.fixed.length>=2?"disabled":""}><span class="pn">${esc(c.n)}</span><span class="ph">${on?"✓ selected":"tap to pick"}</span></button>`;}).join("")+`</div></div>`;
+    for(const id of s.fixed){const c=SEC[id],fv=s.fv[id]||{},tot=Object.values(fv).reduce((a,b)=>a+b,0);
+      h+=`<div class="sbox"><div class="scard"><div class="sn">${esc(c.n)}</div><div class="st">${esc(c.t)}</div><div class="sw">Round ${r}: ${fv[r]||0}VP · Total ${tot}/20</div>
+      <div class="sact">${c.fvp.map(v=>`<button class="vp" data-a="fv" data-id="${id}" data-v="${v}">+${v}VP</button>`).join("")}<button data-a="fv" data-id="${id}" data-v="-1">−1</button></div></div></div>`;}
+  }
+  el.innerHTML=h;
+  const q=el.querySelector("#secq");if(q){q.addEventListener("input",()=>{S.secq=q.value;renderPick();});renderPick();}
+}
+document.getElementById("sec").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||b.disabled)return;secAct(b.dataset.a,b.dataset.id,b.dataset.v);});
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;S.tab=b.dataset.t;save();render();window.scrollTo(0,0);});
+
 (function(){
   const b=document.getElementById("reset"); const label=b.textContent; let armed=false,t=null;
   b.onclick=()=>{
     if(!armed){armed=true;b.textContent="Tap again to confirm reset";t=setTimeout(()=>{armed=false;b.textContent=label;},3000);return;}
     clearTimeout(t);armed=false;b.textContent=label;
-    const o=S.open;S=fresh();S.open=o;save();render();window.scrollTo(0,0);
+    const o=S.open,t=S.tab;S=fresh();S.open=o;S.tab=t;save();render();window.scrollTo(0,0);
   };
 })();
 load();
