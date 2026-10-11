@@ -812,7 +812,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
   b.onclick=()=>{
     if(!armed){armed=true;b.textContent="Tap again to confirm reset";t=setTimeout(()=>{armed=false;b.textContent=label;},3000);return;}
     clearTimeout(t);armed=false;b.textContent=label;
-    const o=S.open,t=S.tab;S=fresh();S.open=o;S.tab=t;save();render();window.scrollTo(0,0);
+    const keepOpen=S.open,keepTab=S.tab;S=fresh();S.open=keepOpen;S.tab=keepTab;save();render();window.scrollTo(0,0);
   };
 })();
 load();
