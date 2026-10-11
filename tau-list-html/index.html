@@ -194,6 +194,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Datasheets: Wahapedia, 40k 11th ed, T'au Faction Pack v1.2 (Sep 2026). Detachment: Retaliation Cadre. Rules are short reminders, not full text.
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
+  <br><br>Build: 11 Oct 2026 · drones + reset fix
 </div>
 
 <script>
@@ -818,7 +819,18 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 load();
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+if("serviceWorker" in navigator){
+  const hadController=!!navigator.serviceWorker.controller; let reloaded=false;
+  // When a new version takes over, reload once so the new code runs.
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController&&!reloaded){reloaded=true;location.reload();}});
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
+      reg.update();
+      // iPhone home-screen apps often resume without reloading: check for updates whenever the app is reopened.
+      document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{});});
+    }).catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
