@@ -178,6 +178,33 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
 .hist li:last-child{border-bottom:0}
 .hist small{font-family:var(--mono);color:var(--dim);font-size:11px}
 .hist button{height:32px;padding:0 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:11.5px;flex:none}
+
+/* ---------- stratagems tab ---------- */
+#strat{padding:4px 12px 20px}
+.stfil{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:8px}
+.stfil button{flex:1;height:36px;border-radius:7px;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border:1px solid transparent}
+.stfil button.on{background:var(--panel2);color:var(--text);border-color:var(--cyan)}
+.stleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-family:var(--mono);font-size:10.5px;color:var(--dim);margin:2px 2px 10px}
+.stleg span{display:inline-flex;align-items:center;gap:5px}
+.stleg i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.stph{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0 8px;font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.stph small{font-family:var(--mono);font-size:11px;color:var(--dim);font-weight:400;margin-left:8px;letter-spacing:0}
+.stchev{width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-135deg) translate(-2px,-2px);flex:none}
+.closed>.stchev,.stbar .stchev{transform:rotate(45deg) translate(-2px,-2px)}
+.stbar.open .stchev{transform:rotate(-135deg) translate(-2px,-2px)}
+.stc{border-radius:12px;margin-bottom:8px;overflow:hidden;color:#fff}
+.stc.either{background:#2E6359}.stc.yours{background:#1B506B}.stc.theirs{background:#A1100B}
+.stc.locked{opacity:.45}
+.stbar{width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;text-align:left;font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:.02em}
+.stbar .stn{flex:1;min-width:0}
+.stbar .stcp{font-family:var(--mono);font-size:14px;font-weight:600}
+.stbar .stlock{font-family:var(--mono);font-size:10px;font-weight:500;background:rgba(0,0,0,.3);padding:2px 6px;border-radius:999px;letter-spacing:0}
+.stbody{background:var(--panel);color:var(--text);margin:0 3px 3px;border-radius:0 0 10px 10px;padding:10px 12px 12px;font-size:13.5px;line-height:1.45}
+.stbody .stcat{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.stbody p{margin:0 0 6px}.stbody p:last-child{margin:0}
+.stbody b{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--cyan);margin-right:4px}
+.stbody b.r{color:var(--ochre)}
+.stnote{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin:14px 2px 0;line-height:1.5}
 </style>
 </head>
 <body>
@@ -189,12 +216,13 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
 </div></div>
 <main id="list"></main>
 <section id="sec" hidden></section>
+<section id="strat" hidden></section>
 <nav class="tabs" id="tabs"></nav>
 <div class="foot">
   Datasheets: Wahapedia, 40k 11th ed, T'au Faction Pack v1.2 (Sep 2026). Detachment: Retaliation Cadre. Rules are short reminders, not full text.
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
-  <br><br>Build: 11 Oct 2026 · drones + reset fix
+  <br><br>Build: 16 Oct 2026 · stratagems tab
 </div>
 
 <script>
@@ -522,8 +550,9 @@ if(S.round===i)b.classList.add("on");
   const tab=S.tab||"units";
   list.hidden=tab!=="units"; document.querySelector(".foot").hidden=tab!=="units";
   const secEl=document.getElementById("sec"); secEl.hidden=tab!=="sec"; if(tab==="sec")renderSec();
+  const stEl=document.getElementById("strat"); stEl.hidden=tab!=="strat"; if(tab==="strat")renderStrat();
   const need=S.sec.mode==="tactical"?Math.max(0,2-secDrawn()):0;
-  document.getElementById("tabs").innerHTML=`<button data-t="units" class="${tab==="units"?"on":""}">Datasheets</button><button data-t="sec" class="${tab==="sec"?"on":""}">Secondaries${need?`<span class="badge">Draw ${need}</span>`:""}</button>`;
+  document.getElementById("tabs").innerHTML=`<button data-t="units" class="${tab==="units"?"on":""}">Datasheets</button><button data-t="sec" class="${tab==="sec"?"on":""}">Secondaries${need?`<span class="badge">Draw ${need}</span>`:""}</button><button data-t="strat" class="${tab==="strat"?"on":""}">Strats</button>`;
 }
 function tog(label,on,fn,cls){
   const b=document.createElement("button");b.className="tog"+(on?" on":"")+(cls?" "+cls:"");
@@ -805,6 +834,84 @@ function renderSec(){
   el.innerHTML=h;
   const q=el.querySelector("#secq");if(q){q.addEventListener("input",()=>{S.secq=q.value;renderPick();});renderPick();}
 }
+
+// ===================== STRATAGEMS =====================
+// t: either = green (either player's turn), yours = blue, theirs = red. nr1 = can't be used in battle round 1.
+const ST_PH=["Command","Movement","Shooting","Charge","Fight"];
+const STRATS=[
+ {n:"Command Re-roll",cp:"1",t:"either",ph:ST_PH,c:"Core",
+  w:"Any phase, just after you make an Advance, Charge, Damage, Hazard, Hit, Save or Wound roll, or a roll for the number of attacks, for a friendly unit or model.",
+  tg:"That unit or model.",e:"Re-roll it. With several dice rolled together, re-roll one of them (Charge rolls re-roll in full)."},
+ {n:"New Orders",cp:"1",t:"yours",ph:["Command"],c:"Core – Strategic Ploy",
+  w:"End of your Command phase.",tg:"One of your active Secondary Mission cards.",e:"Discard it and draw one new Secondary Mission card."},
+ {n:"Insane Bravery",cp:"1",t:"yours",ph:["Command"],c:"Core",
+  w:"Battle-shock step of your Command phase, just before a battle-shock roll for a friendly unit.",tg:"That unit.",e:"The roll is automatically successful.",r:"Once per battle."},
+ {n:"Rapid Ingress",cp:"1",t:"theirs",ph:["Movement"],c:"Core",nr1:1,
+  w:"End of your opponent's Movement phase.",tg:"One friendly unit in Strategic Reserves (not AIRCRAFT).",e:"Your unit makes an Ingress move.",r:"Not in battle round 1."},
+ {n:"Fire Overwatch",cp:"1",t:"theirs",ph:["Movement"],c:"Core",
+  w:"End of your opponent's Movement phase.",tg:"One friendly unengaged unit (not TITANIC).",e:"Snap shoot at one visible, eligible enemy unit within 24\". Hits only on unmodified 6s; no Hit re-rolls."},
+ {n:"Explosives",cp:"1",t:"yours",ph:["Shooting"],c:"Core",
+  w:"Your Shooting phase.",tg:"One friendly unengaged EXPLOSIVES/GRENADES unit that is eligible to shoot and didn't Advance.",
+  e:"Pick one EXPLOSIVES/GRENADES model in it and a visible, unengaged enemy unit within 8\". Roll six D6: each 4+ is 1 mortal wound."},
+ {n:"Smokescreen",cp:"1",t:"theirs",ph:["Shooting"],c:"Core",
+  w:"Start of your opponent's Shooting phase.",tg:"One friendly SMOKE unit.",e:"Until end of phase, it and friendly units obscured by it have the Benefit of Cover when targeted."},
+ {n:"Crushing Impact",cp:"1",t:"yours",ph:["Charge"],c:"Core",
+  w:"Your Charge phase, just after a friendly MONSTER or VEHICLE unit ends a Charge move.",tg:"That unit.",
+  e:"Pick an engaged enemy unit and one engaged model of yours. Roll D6 equal to its Toughness: each 5+ = 1 mortal wound on the enemy (max 6); each 1 = 1 mortal wound on your unit."},
+ {n:"Heroic Intervention",cp:"1/2",t:"theirs",ph:["Charge"],c:"Core",
+  w:"End of your opponent's Charge phase.",tg:"One friendly unengaged unit within 12\" of an enemy unit (VEHICLES must be CHARACTERS or WALKERS).",
+  e:"Your unit charges. Leap to Defend (1CP): only enemy units that charged this phase. Into the Fray (2CP): any enemy within 6\", Charge roll capped at 6."},
+ {n:"Epic Challenge",cp:"1",t:"either",ph:["Fight"],c:"Core",
+  w:"Fight phase, just after a friendly CHARACTER unit is selected to fight.",tg:"One CHARACTER model in that unit.",e:"Until end of phase, its melee weapons have [PRECISION]."},
+ {n:"Counter-offensive",cp:"2",t:"theirs",ph:["Fight"],c:"Core",
+  w:"Your opponent's Fight phase, just after an enemy unit has fought.",tg:"One friendly unit eligible to fight that hasn't fought this phase.",e:"It has Fights First and must be the next unit you select to fight."},
+ {n:"Fail-safe Detonator",cp:"2",t:"either",ph:ST_PH,c:"Retaliation Cadre – Epic Deed",
+  w:"Any phase, just after a BATTLESUIT model from your army is destroyed.",tg:"That model's unit (even if just destroyed).",
+  e:"With Deadly Demise: don't roll, choose a 1 or a 6. Without it: roll a D6 for each unit within 6\"; on a 4+ it suffers D3 mortal wounds."},
+ {n:"The Shortened Blade",cp:"2",t:"yours",ph:["Movement"],c:"Retaliation Cadre – Strategic Ploy",
+  w:"Your Movement phase.",tg:"One BATTLESUIT unit from your army arriving by Deep Strike this phase.",
+  e:"Set it up anywhere more than 6\" horizontally from all enemy models.",r:"It can't declare a charge this turn."},
+ {n:"Stimm Injectors",cp:"1",t:"either",ph:["Shooting","Fight"],c:"Retaliation Cadre – Wargear",
+  w:"Your opponent's Shooting phase or the Fight phase, just after an enemy unit selects its targets.",tg:"One BATTLESUIT unit from your army it targeted.",e:"Until end of phase, your unit has Feel No Pain 6+."},
+ {n:"The Arro'kon Protocol",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Battle Tactic",
+  w:"Your Shooting phase.",tg:"One BATTLESUIT unit from your army that hasn't shot this phase.",
+  e:"Until end of phase, its attacks have [SUSTAINED HITS 1] vs units of 6+ models, or [SUSTAINED HITS 2] vs units of 11+ models."},
+ {n:"The Torchstar Gambit",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Strategic Ploy",
+  w:"Your Shooting phase.",tg:"One BATTLESUIT unit from your army that can FLY and has finished its attacks this phase.",
+  e:"If it's not in Engagement Range, it can make a Normal move.",r:"If it does, it can't declare a charge this turn."},
+ {n:"Grav-Inhibitor Field",cp:"1",t:"theirs",ph:["Charge"],c:"Retaliation Cadre – Strategic Ploy",
+  w:"Your opponent's Charge phase, just after an enemy unit declares a charge.",tg:"One BATTLESUIT unit from your army that is a target of that charge.",
+  e:"The enemy unit takes a Battle-shock test, and you roll a D6 per model in it: each 6 is 1 mortal wound."},
+];
+const stOpen=new Set();
+function renderStrat(){
+  const el=document.getElementById("strat"),f=S.stTurn||"all",shut=S.stShut||[];
+  const show=x=>f==="all"||x.t===f||x.t==="either";
+  let h=`<div class="stfil">${[["all","All"],["yours","My turn"],["theirs","Their turn"]].map(([k,l])=>`<button data-sa="turn" data-v="${k}" class="${f===k?"on":""}">${l}</button>`).join("")}</div>
+  <div class="stleg"><span><i style="background:#2E6359"></i>Either turn</span><span><i style="background:#1B506B"></i>Your turn</span><span><i style="background:#A1100B"></i>Opponent's turn</span></div>`;
+  for(const p of ST_PH){
+    const list=STRATS.filter(x=>x.ph.includes(p)&&show(x)).sort((a,b)=>a.n.replace(/^The /,"").localeCompare(b.n.replace(/^The /,"")));
+    if(!list.length)continue;
+    const closed=shut.includes(p);
+    h+=`<button class="stph${closed?" closed":""}" data-sa="ph" data-v="${p}"><span>${p} phase<small>${list.length}</small></span><span class="stchev"></span></button>`;
+    if(closed)continue;
+    for(const x of list){
+      const key=p+"|"+x.n,open=stOpen.has(key),lock=x.nr1&&S.round===1;
+      h+=`<div class="stc ${x.t}${lock?" locked":""}"><button class="stbar${open?" open":""}" data-sa="card" data-v="${esc(key)}"><span class="stchev"></span><span class="stn">${esc(x.n)}</span>${lock?`<span class="stlock">not R1</span>`:""}<span class="stcp">${x.cp}CP</span></button>`;
+      if(open)h+=`<div class="stbody"><div class="stcat">${esc(x.c)}</div><p><b>WHEN</b>${esc(x.w)}</p><p><b>TARGET</b>${esc(x.tg)}</p><p><b>EFFECT</b>${esc(x.e)}</p>${x.r?`<p><b class="r">RESTRICTION</b>${esc(x.r)}</p>`:""}</div>`;
+      h+=`</div>`;
+    }
+  }
+  h+=`<div class="stnote">Each unit can be targeted by only one Stratagem per phase, and each Stratagem can be used once per phase. Puretide's Teachings (Farsight + Sunforge): once per battle round, a Stratagem on that unit costs 1CP less.</div>`;
+  el.innerHTML=h;
+}
+document.getElementById("strat").addEventListener("click",e=>{
+  const b=e.target.closest("[data-sa]");if(!b)return;const a=b.dataset.sa,v=b.dataset.v;
+  if(a==="turn"){S.stTurn=v;save();}
+  else if(a==="ph"){const s=new Set(S.stShut||[]);s.has(v)?s.delete(v):s.add(v);S.stShut=[...s];save();}
+  else if(a==="card"){stOpen.has(v)?stOpen.delete(v):stOpen.add(v);}
+  renderStrat();
+});
 document.getElementById("sec").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||b.disabled)return;secAct(b.dataset.a,b.dataset.id,b.dataset.v);});
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;S.tab=b.dataset.t;save();render();window.scrollTo(0,0);});
 
