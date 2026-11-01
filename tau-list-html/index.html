@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · Stormsurge pulse blast cannon
+  <br><br>Build: 1 Nov 2026 · Starscythe flamers
 </div>
 
 <script>
@@ -601,13 +601,13 @@ const UNITS_MK = [
       ["Not For the Greater Good","Kroot can't be Guided or spot, but Killing Blow still gives their guns Assault in rounds 1–3.","info"]],
   core:["Scouts 7\"","Stealth"]},
 
- {id:"starscythe",name:"Crisis Starscythe",role:"Battlesuits · marker drone",pts:115,tags:["ftgg","ml","tau","bs"],apUp:true,
+ {id:"starscythe",name:"Crisis Starscythe",role:"Battlesuits · marker drone",pts:125,tags:["ftgg","ml","tau","bs"],apUp:true,
   buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (no Starscythe AP)",chip:"No +1 AP",ranged:[]}],
   stats:["10\"","5","3+","4","7+","2","–"],
   groups:[
     {id:"vre",name:"Starscythe Shas'vre (marker + shield drone, W5)",lbl:"2 T'au flamers",count:1,max:1,W:5,weapons:{tau_flamer:2,fists_crisis:1}},
     {id:"ui1",name:"Starscythe Shas'ui A (gun + shield drone, W5)",lbl:"burst cannon · T'au flamer · gun drone",count:1,max:1,W:5,weapons:{burst_cannon:1,tau_flamer:1,gun_drone:1,fists_crisis:1}},
-    {id:"ui2",name:"Starscythe Shas'ui B (gun + shield drone, W5)",lbl:"2 burst cannons · gun drone",count:1,max:1,W:5,weapons:{burst_cannon:2,gun_drone:1,fists_crisis:1}}],
+    {id:"ui2",name:"Starscythe Shas'ui B (gun + shield drone, W5)",lbl:"2 T'au flamers · gun drone",count:1,max:1,W:5,weapons:{tau_flamer:2,gun_drone:1,fists_crisis:1}}],
   ab:[["Starscythe","Ranged attacks get +1 AP, except against MONSTERS and VEHICLES (applied; use the toggle to take it off).","auto"],
       ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
       ["Marker Drone","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
@@ -674,7 +674,7 @@ const UNITS_MK = [
 const LISTS={
  ret:{id:"ret",name:"Retaliation",det:"ret",detName:"Retaliation Cadre",disp:"Priority Assets",pts:1995,key:"tau-cadre-v3",units:UNITS_RET,
    blurb:"Battlesuit brawl: Bonded Heroes gives suits +1 S within 12\" and +1 AP within 8\" all game. Kroot screen and score."},
- mk:{id:"mk",name:"Take and Hold",det:"mk",detName:"Mont'ka",disp:"Take and Hold",pts:1990,key:"tau-montka-v1",units:UNITS_MK,
+ mk:{id:"mk",name:"Take and Hold",det:"mk",detName:"Mont'ka",disp:"Take and Hold",pts:2000,key:"tau-montka-v1",units:UNITS_MK,
    blurb:"Alpha strike: rounds 1–3 every gun has Assault and Guided units get Lethal Hits. Stormsurge, Riptide and Sky Ray from range, Kroot to hold objectives."},
 };
 const LIST_KEY="tau-active-list";
