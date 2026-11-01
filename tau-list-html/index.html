@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · Mont'ka list v2 (Kroot, enhancements swapped)
+  <br><br>Build: 1 Nov 2026 · Stormsurge pulse blast cannon
 </div>
 
 <script>
@@ -322,6 +322,8 @@ const W = {
   ion_rifle_oc:["Ion rifle – overcharge","R",30,"3","5+","8","-2","2",["Hazardous","Heavy"]],
   seeker_rack:["Seeker missile rack","R",48,"3","4+","14","-3","D6+1",["Twin-linked"]],
   pdc:["Pulse driver cannon","R",72,"D6+3","4+","12","-3","3",["Blast","Heavy"]],
+  pbc_f:["Pulse blast cannon – focused","R",24,"2","4+","24","-6","12",["Heavy"]],
+  pbc_d:["Pulse blast cannon – dispersed","R",48,"6","4+","10","-2","4",["Heavy"]],
   cluster:["Cluster rocket system","R",48,"4D6","4+","5","0","1",["Blast","Heavy"]],
   destroyer_m:["Destroyer missiles","R",72,"1","4+","16","-4","D6+2",["Heavy"]],
   twin_smart:["Twin smart missile system","R",30,"3","4+","5","0","1",["Heavy","Indirect Fire","Twin-linked"]],
@@ -659,8 +661,9 @@ const UNITS_MK = [
  {id:"stormsurge",name:"Stormsurge",role:"Titanic Walker",pts:375,tags:["ftgg","tau"],
   buffs:[{key:"tk",label:"Target is TITANIC or TOWERING (Titan-killer)",chip:"Re-roll hits",ranged:["+Re-roll hits"]}],
   stats:["8\"","11","2+","20","7+","6","4+"],
-  groups:[{id:"m",name:"Stormsurge",lbl:"pulse driver cannon · cluster rockets · destroyer missiles · 2 smart missiles · twin flamer",count:1,max:1,W:20,weapons:{pdc:1,cluster:1,destroyer_m:1,twin_smart:2,twin_flamer:1,footfalls:1}}],
-  ab:[["Support System","Ranged attacks can ignore any or all Hit roll modifiers, including its own damaged −1.","man"],
+  groups:[{id:"m",name:"Stormsurge",lbl:"pulse blast cannon · cluster rockets · destroyer missiles · 2 smart missiles · twin flamer",count:1,max:1,W:20,weapons:{pbc_f:1,pbc_d:1,cluster:1,destroyer_m:1,twin_smart:2,twin_flamer:1,footfalls:1}}],
+  ab:[["Pulse blast cannon","Pick focused (24\", 2 shots, S24 AP-6 D12) or dispersed (48\", 6 shots, S10 AP-2 D4) before targeting.","man"],
+      ["Support System","Ranged attacks can ignore any or all Hit roll modifiers, including its own damaged −1.","man"],
       ["Titan-killer","Ranged attacks against TITANIC or TOWERING units can re-roll the Hit roll (use the toggle).","auto"],
       ["Heavy Walker","Normal, Advance and Fall Back moves can go over non-TITANIC models and terrain 4\" or less tall.","man"],
       ["Damaged 1–5 W","−3 OC (applied) and −1 to Hit (flagged; Support System can ignore it).","auto"]],
