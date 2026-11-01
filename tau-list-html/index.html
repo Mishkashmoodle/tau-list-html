@@ -205,11 +205,30 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
 .stbody b{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--cyan);margin-right:4px}
 .stbody b.r{color:var(--ochre)}
 .stnote{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin:14px 2px 0;line-height:1.5}
+
+/* ---------- list menu ---------- */
+.menu{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 28px) 16px calc(env(safe-area-inset-bottom,0px) + 28px)}
+.menu-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.menu h2{font-family:var(--disp);font-size:30px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin:0}
+.menu .mlead{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin:0 0 8px;letter-spacing:.04em}
+.lcard{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:14px;padding:14px 16px}
+.lcard.last{border-color:var(--cyan)}
+.lcard .ln{font-family:var(--disp);font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.lcard .ld{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.lcard .lu{font-size:13px;color:var(--dim);line-height:1.35}
+.lcard .lstate{display:flex;gap:6px;flex-wrap:wrap}
+.lcard .lstate span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:#1D3A46;color:var(--cyan)}
+.lcard .lstate span.o{background:#3B2E12;color:var(--ochre)}
+.switch{font-family:var(--mono);font-size:11px;color:var(--cyan);border:1px solid var(--cyan-dim);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.army{align-items:flex-start!important}
+.army h1 small{display:block;margin:3px 0 0!important}
+.army .pts{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.armytog .tog{text-align:left}
 </style>
 </head>
 <body>
 <div class="rail"><div class="rail-in">
-  <div class="army"><h1>Retaliation <small>T'AU · RETALIATION CADRE</small></h1><div class="pts">1995 pts</div></div>
+  <div class="army"><h1 id="armyName">T'au <small id="armyDet"></small></h1><div class="pts"><span id="armyPts"></span><button class="switch" id="switchBtn">Lists</button></div></div>
   <div class="rounds"><span class="lbl">Round</span><div id="rounds" style="display:contents"></div></div>
   <div class="railnote"><span id="roundnote"></span></div>
   <div class="armytog" id="armytog"></div>
@@ -218,11 +237,13 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
 <section id="sec" hidden></section>
 <section id="strat" hidden></section>
 <nav class="tabs" id="tabs"></nav>
+<section class="menu" id="menu" hidden></section>
 <div class="foot">
-  Datasheets: Wahapedia, 40k 11th ed, T'au Faction Pack v1.2 (Sep 2026). Detachment: Retaliation Cadre. Rules are short reminders, not full text.
+  Datasheets: Wahapedia and BSData, 40k 11th ed, T'au Faction Pack (Oct 2026). Detachment: <span id="footDet"></span>. Rules are short reminders, not full text.
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
-  <br><br>Build: 16 Oct 2026 · stratagems tab
+  <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
+  <br><br>Build: 1 Nov 2026 · list menu + Mont'ka list
 </div>
 
 <script>
@@ -296,13 +317,23 @@ const W = {
   riptide_fists:["Riptide fists","M",0,"6","5+","6","0","2",[]],
   burst_cannon:["Burst cannon","R",18,"4","4+","5","0","1",[]],
   fists_stealth:["Battlesuit fists","M",0,"2","5+","4","0","1",[]],
+  tau_flamer:["T'au flamer","R",12,"D6","N/A","4","0","1",["Ignores Cover","Torrent"]],
+  ion_rifle_std:["Ion rifle – standard","R",30,"3","5+","7","-1","1",["Heavy"]],
+  ion_rifle_oc:["Ion rifle – overcharge","R",30,"3","5+","8","-2","2",["Hazardous","Heavy"]],
+  seeker_rack:["Seeker missile rack","R",48,"3","4+","14","-3","D6+1",["Twin-linked"]],
+  pdc:["Pulse driver cannon","R",72,"D6+3","4+","12","-3","3",["Blast","Heavy"]],
+  cluster:["Cluster rocket system","R",48,"4D6","4+","5","0","1",["Blast","Heavy"]],
+  destroyer_m:["Destroyer missiles","R",72,"1","4+","16","-4","D6+2",["Heavy"]],
+  twin_smart:["Twin smart missile system","R",30,"3","4+","5","0","1",["Heavy","Indirect Fire","Twin-linked"]],
+  twin_flamer:["Twin T'au flamer","R",12,"D6","N/A","4","0","1",["Ignores Cover","Torrent","Twin-linked"]],
+  footfalls:["Thunderous footfalls","M",0,"3","5+","8","-1","2",[]],
 };
 
 // ===================== UNITS =====================
 // groups: [{id,name,count,W,weapons:{wid:perModel},leader?,note?,stats?}]
 // stats: [M,T,Sv,W,Ld,OC,Inv]
 // tags: ftgg (can be Guided), ml (has MARKERLIGHT), tau (T'au Empire keyword, Kauyon applies), epc (battlesuit character +6"), kroot
-const UNITS = [
+const UNITS_RET = [
  {id:"breachers",name:"Breacher Team",role:"Battleline",pts:140,tags:["ftgg","ml","tau"],
   buffs:[{key:"bnc",label:"Target within range of an objective (Breach and Clear)",chip:"Re-roll wounds",ranged:["+Re-roll wounds"],melee:["+Re-roll wounds"]}],
   stats:["6\"","3","4+","1","7+","2","–"],
@@ -485,8 +516,160 @@ const UNITS = [
   core:["Infiltrators","Stealth"]},
 ];
 
+// ===================== LIST 2: MONT'KA "TAKE AND HOLD" =====================
+const UNITS_MK = [
+ {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:225,tags:["ftgg","tau","bs"],
+  staticKw:[{ranged:["+Re-roll hit 1s"]}],
+  buffs:[{key:"full",label:"Target is at full Starting Strength (Fireknife)",chip:"Re-roll all hits",ranged:["+Re-roll hits"],removes:["+Re-roll hit 1s"]}],
+  stats:["10\"","5","3+","4","7+","2","–"],
+  leader:{name:"Commander in Enforcer Battlesuit",stats:["8\"","5","2+","8","7+","2","4+"],W:8,weapons:{cib_std:1,cib_oc:1,plasma_rifle_enf:1,fists_cmdr:1},
+    ab:[["Coordinated Exploitation","While he leads and this unit is the Observer: Guided units shooting its Spotted unit get Sustained Hits 1. This unit is then NOT Guided itself (turn on the top-bar toggle on the other units' turn).","man"],
+        ["Enforcer Commander","Enemy ranged attacks at this unit: worsen their AP by 1 while he leads.","man"],
+        ["Shield Generator","4+ invulnerable on the Commander only.","auto"],
+        ["Cyclic ion blaster","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"],
+        ["2 Shield Drones","+2 W on the Commander (applied: W8).","auto"]]},
+  groups:[
+    {id:"vre",name:"Fireknife Shas'vre",lbl:"missile pod · plasma rifle",count:1,max:1,W:4,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
+    {id:"ui",name:"Fireknife Shas'ui",lbl:"missile pod · plasma rifle",count:2,max:2,W:4,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}}],
+  ab:[["Fireknife","Ranged: re-roll Hit rolls of 1 (shown). Vs a target at full Starting Strength, re-roll all Hit rolls (use the toggle).","auto"],
+      ["Weapon Support System","Ranged attacks can ignore any or all Hit roll modifiers.","man"]],
+  core:["Deep Strike"]},
+
+ {id:"breachers",name:"Breacher Team",role:"Battleline",pts:145,tags:["ftgg","ml","tau"],
+  buffs:[{key:"bnc",label:"Target within range of an objective (Breach and Clear)",chip:"Re-roll wounds",ranged:["+Re-roll wounds"],melee:["+Re-roll wounds"]}],
+  stats:["6\"","3","4+","1","7+","2","–"],
+  leader:{name:"Cadre Fireblade",stats:["6\"","3","4+","3","7+","1","–"],W:3,weapons:{fireblade_rifle:1,ccw_fb:1},
+    ab:[["Volley Fire","+1 Attack on every ranged weapon in this unit while he leads (applied).","auto"],
+        ["Crack Shot","His own ranged attacks: AP becomes -3 on a Critical Wound.","man"],
+        ["Strategic Conqueror","Start of round 1, pick an objective. While he's on the table, friendly T'au models within range of it get +1 OC.","man"]]},
+  groups:[
+    {id:"ui",name:"Breacher Shas'ui",lbl:"pulse blaster · pulse pistol",count:1,max:1,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,ccw1:1}},
+    {id:"fw",name:"Breacher Fire Warriors",count:9,max:9,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,ccw1:1}}],
+  extras:{stationary:{label:"Remained stationary (DS8 turret)",group:"ui",weapon:"support_turret"}},
+  ab:[["Breach and Clear","Re-roll Wound rolls vs enemy within range of an objective (use the toggle).","auto"],
+      ["Markerlight","This unit has MARKERLIGHT natively — its spotting grants Ignores Cover.","man"],
+      ["DS8 Support Turret","Toggle above when the unit Remains Stationary.","auto"]],
+  core:[]},
+
+ {id:"sunforge",name:"Crisis Sunforge",role:"Battlesuits · +Commander Farsight",pts:195,tags:["ftgg","tau","bs"],
+  buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (Sunforge)",chip:"Re-roll wounds & damage",ranged:["+Re-roll wounds","+Re-roll damage"]},
+         {key:"sb",label:"Target within 9\" (Way of the Short Blade)",chip:"+1 to wound",ranged:["+1 to wound"],melee:["+1 to wound"],leader:true}],
+  stats:["10\"","5","3+","4","7+","2","4+"],
+  leader:{name:"Commander Farsight",stats:["10\"","5","2+","8","6+","2","4+"],W:8,weapons:{hi_plasma:1,dawn_strike:1,dawn_sweep:1},
+    ab:[["Way of the Short Blade","+1 to Wound on all this unit's attacks vs targets within 9\" while he leads (use the toggle).","auto"],
+        ["Puretide's Teachings","Once per battle round, a Stratagem used on this unit costs 1 CP less.","man"],
+        ["Independent Power","No Ethereals in the army.","info"]]},
+  groups:[
+    {id:"vre",name:"Sunforge Shas'vre",lbl:"2 fusion blasters",count:1,max:1,W:4,weapons:{fusion_blaster:2,fists_crisis:1}},
+    {id:"ui",name:"Sunforge Shas'ui",lbl:"2 fusion blasters",count:2,max:2,W:4,weapons:{fusion_blaster:2,fists_crisis:1}}],
+  ab:[["Sunforge","Ranged vs MONSTER or VEHICLE: re-roll Wound rolls and Damage rolls (use the toggle).","auto"]],
+  core:["Deep Strike","4+ invulnerable save"]},
+
+ {id:"twinlance",name:"The Twin Lance",role:"Epic Hero · Ri'Lantar & Ri'Locai",pts:240,tags:["ftgg","tau","bs"],
+  buffs:[{key:"mk",label:"Shooting the CLOSEST eligible target (Exemplars of Mont'ka)",chip:"Sustained 1 · Ignores Cover",ranged:["+Sustained Hits 1","+Ignores Cover"]}],
+  stats:["10\"","6","2+","8","6+","2","4+"],
+  groups:[
+    {id:"lantar",name:"Ri'Lantar",lbl:"fusion eliminator · shardstorm · XV pistol · MV15 drone",count:1,max:1,W:8,weapons:{fusion_elim:1,shardstorm:1,xv_pistol:1,mv15:1,fusion_elim_m:1,xv_pistol_m:1}},
+    {id:"locai",name:"Ri'Locai",lbl:"ion scattercannon · shardstorm · XV pistol · MV15 drone",count:1,max:1,W:8,weapons:{ion_scat_std:1,ion_scat_oc:1,shardstorm:1,xv_pistol:1,mv15:1,ion_scat_m:1,xv_pistol_m:1}}],
+  ab:[["Exemplars of Mont'ka","Ranged attacks at the CLOSEST eligible target get Sustained Hits 1 and Ignores Cover (use the toggle).","auto"],
+      ["Neocapacitor Shields","Start of enemy Charge phase: pick a visible non-MONSTER/VEHICLE unit within 12\" – Battle-shock test and -1 to its Charge rolls this turn.","man"],
+      ["Retro-thrusters","End of Fight phase, if it was eligible to fight: Normal move up to 6\" or Fall Back.","man"],
+      ["Ion scattercannon","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"]],
+  core:["Deep Strike","Scouts 8\"","4+ invulnerable save"]},
+
+ {id:"devilfish",name:"Devilfish",role:"Dedicated Transport",pts:75,tags:["ftgg","tau"],
+  stats:["12\"","9","3+","13","7+","2","–"],
+  groups:[{id:"m",name:"Devilfish",lbl:"accelerator burst cannon · 2 twin pulse carbines",count:1,max:1,W:13,weapons:{acc_burst:1,twin_pulse_carbine:2,armoured_hull:1}}],
+  ab:[["Rapid Deployment","Units can disembark after it has Advanced (they make a shock disembark move).","man"],
+      ["Transport","12 T'AU EMPIRE INFANTRY (no Battlesuits, Kroot or Vespid). Combat Debarkation (1CP) re-rolls wounds for a unit that got out this turn.","info"]],
+  core:["Deadly Demise D3"]},
+
+ {id:"broadside",name:"Broadside Battlesuit",role:"Battlesuit · single Shas'vre",pts:75,tags:["ftgg","tau","bs"],
+  stats:["5\"","6","2+","8","7+","2","–"],
+  groups:[{id:"m",name:"Broadside Shas'vre",lbl:"heavy rail rifle",count:1,max:1,W:8,weapons:{heavy_rail:1,crushing_bulk:1}}],
+  ab:[["Advanced Armour","Feel No Pain 4+ against mortal wounds only.","man"],
+      ["Heavy","+1 to hit if it moved 3\" or less, isn't engaged and wasn't set up this turn (use the toggle).","auto"]],
+  core:[]},
+
+ {id:"starscythe",name:"Crisis Starscythe",role:"Battlesuits · marker drone",pts:115,tags:["ftgg","ml","tau","bs"],apUp:true,
+  buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (no Starscythe AP)",chip:"No +1 AP",ranged:[]}],
+  stats:["10\"","5","3+","4","7+","2","–"],
+  groups:[
+    {id:"vre",name:"Starscythe Shas'vre (marker + shield drone, W5)",lbl:"2 T'au flamers",count:1,max:1,W:5,weapons:{tau_flamer:2,fists_crisis:1}},
+    {id:"ui1",name:"Starscythe Shas'ui A (gun + shield drone, W5)",lbl:"burst cannon · T'au flamer · gun drone",count:1,max:1,W:5,weapons:{burst_cannon:1,tau_flamer:1,gun_drone:1,fists_crisis:1}},
+    {id:"ui2",name:"Starscythe Shas'ui B (gun + shield drone, W5)",lbl:"2 burst cannons · gun drone",count:1,max:1,W:5,weapons:{burst_cannon:2,gun_drone:1,fists_crisis:1}}],
+  ab:[["Starscythe","Ranged attacks get +1 AP, except against MONSTERS and VEHICLES (applied; use the toggle to take it off).","auto"],
+      ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
+      ["Marker Drone","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
+  core:["Deep Strike"]},
+
+ {id:"pathfinders",name:"Pathfinder Team",role:"Infantry · 10",pts:100,tags:["ftgg","ml","tau","pf"],
+  stats:["7\"","3","4+","1","7+","1","–"],
+  groups:[
+    {id:"ui",name:"Pathfinder Shas'ui",lbl:"pulse carbine · grav-inhibitor drone",count:1,max:1,W:1,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"pc",name:"Pathfinders (carbine)",count:5,max:5,W:1,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"gl",name:"Pathfinder w/ grenade launcher",lbl:"pulse carbine · semi-auto grenade launcher",count:1,max:1,W:1,weapons:{pulse_carbine:1,sagl_emp:1,sagl_fus:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"ir",name:"Pathfinders w/ ion rifle",count:3,max:3,W:1,weapons:{ion_rifle_std:1,ion_rifle_oc:1,pulse_pistol:1,ccw_pf:1}}],
+  ab:[["Target Uploaded","Attacks at THEIR OWN Spotted unit: BS improved by 1 and Ignores Cover (applied when Guided is on).","auto"],
+      ["Grav-inhibitor Drone","Enemies charging this unit get -2 to Charge rolls (not cumulative with other reductions).","man"],
+      ["Ion rifle / grenade launcher","Pick a profile before targeting. Ion rifle overcharge is Hazardous.","man"]],
+  core:["Scouts 7\""]},
+
+ {id:"riptide",name:"Riptide Battlesuit",role:"Battlesuit",pts:215,tags:["ftgg","tau","bs"],
+  buffs:[{key:"nova",label:"Nova Charge active this phase",chip:"Devastating Wounds",ranged:["+Devastating Wounds (1 weapon)"],marks:"nova"}],
+  stats:["10\"","9","2+","14","7+","4","4+"],
+  groups:[{id:"m",name:"Riptide",lbl:"ion accelerator · twin plasma rifle · 2 missile drones",count:1,max:1,W:14,weapons:{ion_acc_std:1,ion_acc_sc:1,twin_plasma:1,missile_drone:2,riptide_fists:1}}],
+  extras:{nova:{label:"Nova Charge used (once per battle)"}},
+  ab:[["Nova Charge","Once per battle when selected to shoot: ONE ranged weapon gets Devastating Wounds this phase. Turning the toggle on also marks it used.","auto"],
+      ["Weapon Support System","Ignores hit-roll modifiers.","auto"],
+      ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
+      ["Ion accelerator","Pick standard OR supercharge before targeting. Supercharge is Hazardous.","man"],
+      ["Damaged 1–4 W","-1 to Hit on all attacks (auto-flagged on the sheet).","auto"]],
+  core:["Deadly Demise D6","4+ invulnerable save"], dmg:4},
+
+ {id:"skyray",name:"Sky Ray Gunship",role:"Vehicle · Markerlight",pts:140,tags:["ftgg","ml","tau"],
+  buffs:[{key:"fly",label:"Target can FLY (Velocity Tracker)",chip:"Re-roll hits",ranged:["+Re-roll hits"]}],
+  stats:["10\"","10","3+","14","7+","3","–"],
+  groups:[{id:"m",name:"Sky Ray",lbl:"seeker missile rack · 2 accelerator burst cannons",count:1,max:1,W:14,weapons:{seeker_rack:1,acc_burst:2,armoured_hull:1}}],
+  ab:[["Velocity Tracker","Ranged attacks against a unit that can FLY can re-roll the Hit roll (use the toggle).","auto"],
+      ["Targeting Array","Each time it's selected to shoot: re-roll one Hit roll or one Wound roll.","man"],
+      ["Markerlight","It can be a Markerlight Observer: the unit it guides gets Ignores Cover.","man"],
+      ["Damaged 1–5 W","-1 to Hit on all attacks (auto-flagged on the sheet).","auto"]],
+  core:["Deadly Demise D3"], dmg:5},
+
+ {id:"stealth",name:"Stealth Battlesuits",role:"Infantry · 5",pts:100,tags:["ftgg","ml","tau","bs"],
+  stats:["8\"","4","3+","2","7+","1","–"],
+  groups:[
+    {id:"vre",name:"Stealth Shas'vre",lbl:"burst cannon",count:1,max:1,W:2,weapons:{burst_cannon:1,fists_stealth:1}},
+    {id:"bc",name:"Stealth Shas'ui",lbl:"burst cannons · one carries the homing beacon",count:4,max:4,W:2,weapons:{burst_cannon:1,fists_stealth:1}}],
+  extras:{beacon:{label:"Homing Beacon used (once per battle)"}},
+  ab:[["Forward Observers","When this unit is the Observer: the Guided unit re-rolls Hit 1s and Wound 1s vs the Spotted unit (set \"Spotter: Stealth Suits\" on the unit being guided).","auto"],
+      ["Homing Beacon","Once per battle: Rapid Ingress for 0 CP, set up within 3\" of this unit and >8\" from enemies.","man"],
+      ["Markerlight","This unit has MARKERLIGHT (Ignores Cover for the unit it guides).","man"]],
+  core:["Infiltrators","Stealth"]},
+
+ {id:"stormsurge",name:"Stormsurge",role:"Titanic Walker",pts:375,tags:["ftgg","tau"],
+  buffs:[{key:"tk",label:"Target is TITANIC or TOWERING (Titan-killer)",chip:"Re-roll hits",ranged:["+Re-roll hits"]}],
+  stats:["8\"","11","2+","20","7+","6","4+"],
+  groups:[{id:"m",name:"Stormsurge",lbl:"pulse driver cannon · cluster rockets · destroyer missiles · 2 smart missiles · twin flamer",count:1,max:1,W:20,weapons:{pdc:1,cluster:1,destroyer_m:1,twin_smart:2,twin_flamer:1,footfalls:1}}],
+  ab:[["Support System","Ranged attacks can ignore any or all Hit roll modifiers, including its own damaged −1.","man"],
+      ["Titan-killer","Ranged attacks against TITANIC or TOWERING units can re-roll the Hit roll (use the toggle).","auto"],
+      ["Heavy Walker","Normal, Advance and Fall Back moves can go over non-TITANIC models and terrain 4\" or less tall.","man"],
+      ["Damaged 1–5 W","−3 OC (applied) and −1 to Hit (flagged; Support System can ignore it).","auto"]],
+  core:["Deadly Demise D6+2","4+ invulnerable save"], dmg:5},
+];
+
+// ===================== LISTS =====================
+const LISTS={
+ ret:{id:"ret",name:"Retaliation",det:"ret",detName:"Retaliation Cadre",disp:"Priority Assets",pts:1995,key:"tau-cadre-v3",units:UNITS_RET,
+   blurb:"Battlesuit brawl: Bonded Heroes gives suits +1 S within 12\" and +1 AP within 8\" all game. Kroot screen and score."},
+ mk:{id:"mk",name:"Take and Hold",det:"mk",detName:"Mont'ka",disp:"Take and Hold",pts:2000,key:"tau-montka-v1",units:UNITS_MK,
+   blurb:"Alpha strike: rounds 1–3 every gun has Assault and Guided units get Lethal Hits. Stormsurge, Riptide and Sky Ray from range."},
+};
+const LIST_KEY="tau-active-list";
+let LIST=LISTS.ret, UNITS=LIST.units, KEY=LIST.key;
+
 // ===================== STATE =====================
-const KEY="tau-cadre-v3";
 let S=null;
 function fresh(){
   const s={round:1,open:{},units:{},sec:freshSec(),tab:"units"};
@@ -498,10 +681,39 @@ function fresh(){
   }
   return s;
 }
+async function readStore(k){
+  try{ if(window.storage){const r=await window.storage.get(k,false);return r&&r.value?r.value:null;}
+       if(window.localStorage)return localStorage.getItem(k); }catch(e){}
+  return null;
+}
+function writeStore(k,v){try{ if(window.storage)window.storage.set(k,v,false); else if(window.localStorage)localStorage.setItem(k,v);}catch(e){}}
+async function showMenu(){
+  if(S){clearTimeout(saveT);const v=JSON.stringify(S);writeStore(KEY,v);}
+  const last=await readStore(LIST_KEY);
+  let h=`<div class="menu-in"><h2>Choose your army</h2><p class="mlead">T'AU EMPIRE · each list keeps its own game in progress</p>`;
+  for(const L of Object.values(LISTS)){
+    let st=null;try{const v=await readStore(L.key);if(v)st=JSON.parse(v);}catch(e){}
+    const tags=[`<span>${esc(L.detName)}</span>`,`<span>${esc(L.disp)}</span>`,`<span>${L.pts} pts</span>`];
+    if(st&&st.units){const lost=L.units.reduce((a,u)=>{const x=st.units[u.id];if(!x)return a;return a+u.groups.reduce((b,g)=>b+Math.max(0,g.max-(x.counts[g.id]??g.max)),0);},0);
+      if(st.round>1||lost>0)tags.push(`<span class="o">Game in progress · round ${st.round}</span>`);}
+    h+=`<button class="lcard${last===L.id?" last":""}" data-list="${L.id}"><span class="ln">${esc(L.name)}</span><span class="ld">${L.units.length} units${last===L.id?" · last played":""}</span><span class="lu">${esc(L.blurb)}</span><span class="lstate">${tags.join("")}</span></button>`;
+  }
+  h+=`</div>`;
+  const m=document.getElementById("menu");m.innerHTML=h;m.hidden=false;window.scrollTo(0,0);
+}
+document.getElementById("menu").addEventListener("click",e=>{const b=e.target.closest("[data-list]");if(!b)return;pickList(b.dataset.list);});
+async function pickList(id){
+  LIST=LISTS[id]||LISTS.ret;UNITS=LIST.units;KEY=LIST.key;S=null;stOpen.clear();
+  writeStore(LIST_KEY,LIST.id);
+  document.getElementById("menu").hidden=true;
+  await load();window.scrollTo(0,0);
+}
+document.getElementById("switchBtn").onclick=showMenu;
+document.getElementById("switchBtn2").onclick=showMenu;
 async function load(){
-  try{ if(window.storage){const r=await window.storage.get(KEY,false);if(r&&r.value){S=JSON.parse(r.value);}}
-       else if(window.localStorage){const v=localStorage.getItem(KEY);if(v)S=JSON.parse(v);} }catch(e){}
-  if(!S)S=fresh();
+  const raw=await readStore(KEY);
+  try{if(raw)S=JSON.parse(raw);}catch(e){S=null;}
+  if(!S||!S.units)S=fresh();
   // merge new units if data changed
   const f=fresh();for(const k in f.units){if(!S.units[k]){S.units[k]=f.units[k];continue;}
     for(const g in f.units[k].counts){if(S.units[k].counts[g]===undefined)S.units[k].counts[g]=f.units[k].counts[g];if(S.units[k].wounds[g]===undefined)S.units[k].wounds[g]=0;}
@@ -509,7 +721,7 @@ async function load(){
     if(S.units[k].bh===undefined)S.units[k].bh=0;
     if(S.units[k].charged===undefined)S.units[k].charged=false;
     if(!S.units[k].t)S.units[k].t={};
-    const u=UNITS.find(x=>x.id===k);for(const g of u.groups)if(S.units[k].counts[g.id]>g.max)S.units[k].counts[g.id]=g.max;}
+    const u=UNITS.find(x=>x.id===k);if(!u)continue;for(const g of u.groups)if(S.units[k].counts[g.id]>g.max)S.units[k].counts[g.id]=g.max;}
   if(!S.sec)S.sec=freshSec(); if(!S.tab)S.tab="units";
   render();
 }
@@ -535,12 +747,25 @@ function damaged(u,st){ if(!u.dmg)return false; const g=u.groups[0]; return (g.W
 // ===================== RENDER =====================
 function render(){
   // rounds
+  document.title=LIST.name+" — T'au Sheets";
+  document.getElementById("armyName").firstChild.nodeValue=LIST.name+" ";
+  document.getElementById("armyDet").textContent="T'AU · "+LIST.detName.toUpperCase();
+  document.getElementById("armyPts").textContent=LIST.pts+" pts";
+  document.getElementById("footDet").textContent=LIST.detName;
   const rr=document.getElementById("rounds");rr.innerHTML="";
   for(let i=1;i<=5;i++){const b=document.createElement("button");b.textContent=i;
 if(S.round===i)b.classList.add("on");
+    if(LIST.det==="mk"&&i<=3)b.classList.add("kauyon");
     b.onclick=()=>{S.round=i;save();render();};rr.appendChild(b);}
-  document.getElementById("roundnote").innerHTML="<b>BONDED HEROES</b> — battlesuit ranged attacks: +1 S vs targets within 12\", +1 AP too within 8\" (per-unit toggle). Works all game.";
-  document.getElementById("armytog").innerHTML="";
+  const at=document.getElementById("armytog");at.innerHTML="";
+  if(LIST.det==="ret"){
+    document.getElementById("roundnote").innerHTML="<b>BONDED HEROES</b> — battlesuit ranged attacks: +1 S vs targets within 12\", +1 AP too within 8\" (per-unit toggle). Works all game.";
+  }else{
+    document.getElementById("roundnote").innerHTML=S.round<=3
+      ?"<b>KILLING BLOW ON</b> — round "+S.round+": every T'au gun has Assault, and Guided units get Lethal Hits (applied)."
+      :"<b>KILLING BLOW OFF</b> — it only works in rounds 1–3. Coordinated Exploitation still works.";
+    at.appendChild(tog("Coordinated Exploitation spotter: Sustained Hits 1 for Guided units",!!S.ce,()=>{S.ce=!S.ce;},"warn"));
+  }
   // units
   const list=document.getElementById("list");list.innerHTML="";
   const alive=u=>{const st=S.units[u.id];return u.groups.reduce((a,g)=>a+st.counts[g.id],0)+(u.leader&&st.leader?1:0)>0;};
@@ -566,9 +791,13 @@ function unitCard(u,st){
   if(total===0)el.classList.add("dead");
   const guided=st.guided&&u.tags.includes("ftgg");
   const chips=[];
-  if(u.tags.includes("bs")&&st.bh===1)chips.push('<span class="chip o">+1 S (≤12")</span>');
-  if(u.tags.includes("bs")&&st.bh===2)chips.push('<span class="chip o">+1 S & AP (≤8")</span>');
+  const ret=LIST.det==="ret",kb=LIST.det==="mk"&&S.round<=3;
+  if(ret&&u.tags.includes("bs")&&st.bh===1)chips.push('<span class="chip o">+1 S (≤12")</span>');
+  if(ret&&u.tags.includes("bs")&&st.bh===2)chips.push('<span class="chip o">+1 S & AP (≤8")</span>');
   if(guided)chips.push('<span class="chip">Guided +1 BS</span>');
+  if(guided&&kb)chips.push('<span class="chip o">Lethal Hits</span>');
+  if(guided&&LIST.det==="mk"&&S.ce)chips.push('<span class="chip o">Sustained 1</span>');
+  if(u.apUp&&!st.t.mv)chips.push('<span class="chip o">+1 AP</span>');
   if(st.charged&&hasLance(u,st))chips.push('<span class="chip">Lance +1 wound</span>');
   for(const b of (u.buffs||[]))if(st.t[b.key]&&!(b.leader&&!st.leader))chips.push(`<span class="chip">${esc(b.chip)}</span>`);
   const sp=Number(st.ml)||0;
@@ -622,6 +851,7 @@ function unitCard(u,st){
   if(u.leader&&st.leader)u.leader.ab.forEach(push);
   u.ab.forEach(push);
   if(u.tags.includes("ftgg"))push(["For the Greater Good","Guided vs its Spotted unit: +1 BS (done by toggle). Markerlight Observer adds Ignores Cover. A unit that observed this phase can't be Guided itself.","auto"]);
+  if(LIST.det==="mk"&&u.tags.includes("tau"))push(["Killing Blow (Mont'ka)","Rounds 1–3: ranged weapons have Assault, and while Guided they also have Lethal Hits (applied from the round tracker).","auto"]);
   const li=a=>`<li><b>${esc(a[0])}</b> — ${esc(a[1])}</li>`;
   const rem=abl.filter(a=>a[2]==="man"), auto=abl.filter(a=>a[2]==="auto"), info=abl.filter(a=>a[2]==="info");
   if(rem.length)html+='<div class="ab"><h4 class="o">Remember — not on the sheet</h4><ul>'+rem.map(li).join("")+"</ul></div>";
@@ -639,7 +869,7 @@ function unitCard(u,st){
     else tg.appendChild(tog(spL.replace(" (+Cover, re-roll 1s)",""),(Number(st.ml)||0)>0,()=>{st.ml=((Number(st.ml)||0)+1)%2;}));
   }
   if(hasHeavy(u,st))tg.appendChild(tog("Heavy: moved 3\" or less (+1 to hit)",st.heavy,()=>{st.heavy=!st.heavy;}));
-  if(u.tags.includes("bs")){
+  if(LIST.det==="ret"&&u.tags.includes("bs")){
     const lbl=["Bonded Heroes: target beyond 12\"","Bonded Heroes: target ≤12\" (+1 S)","Bonded Heroes: target ≤8\" (+1 S & AP)"][st.bh];
     tg.appendChild(tog(lbl,st.bh>0,()=>{st.bh=(st.bh+1)%3;},"warn"));
   }
@@ -704,8 +934,12 @@ function weaponTable(title,rows,u,st,m){
       if(u.id==="breachers"&&st.leader){A=String(parseInt(A)+1);cA=true;}
       if(m.guided&&BS!=="N/A"){BS=improve(BS);cB=true;}
       if(m.guided&&u.tags.includes("pf")&&BS!=="N/A"){BS=improve(BS);}
-      if(u.tags.includes("bs")&&st.bh>=1){SS=bump(SS);cS=true;}
-      if(u.tags.includes("bs")&&st.bh===2){AP=apUp(AP);cP=true;}
+      if(LIST.det==="ret"&&u.tags.includes("bs")&&st.bh>=1){SS=bump(SS);cS=true;}
+      if(LIST.det==="ret"&&u.tags.includes("bs")&&st.bh===2){AP=apUp(AP);cP=true;}
+      if(u.apUp&&!st.t.mv&&!isDroneOrTurret){AP=apUp(AP);cP=true;}
+      if(LIST.det==="mk"&&S.round<=3&&u.tags.includes("tau")&&!kw.includes("Assault"))kw.push("+Assault");
+      if(LIST.det==="mk"&&S.round<=3&&m.guided&&!kw.includes("Lethal Hits"))kw.push("+Lethal Hits");
+      if(LIST.det==="mk"&&S.ce&&m.guided&&!kw.some(k=>/^Sustained Hits/.test(k)))kw.push("+Sustained Hits 1");
       const spv=Number(st.ml)||0;
       if(m.guided&&spv>=1&&!kw.includes("Ignores Cover"))kw.push("+Ignores Cover");
       if(m.guided&&spv===2){kw.push("+Re-roll hit 1s","+Re-roll wound 1s");}
@@ -865,23 +1099,41 @@ const STRATS=[
   w:"Fight phase, just after a friendly CHARACTER unit is selected to fight.",tg:"One CHARACTER model in that unit.",e:"Until end of phase, its melee weapons have [PRECISION]."},
  {n:"Counter-offensive",cp:"2",t:"theirs",ph:["Fight"],c:"Core",
   w:"Your opponent's Fight phase, just after an enemy unit has fought.",tg:"One friendly unit eligible to fight that hasn't fought this phase.",e:"It has Fights First and must be the next unit you select to fight."},
- {n:"Fail-safe Detonator",cp:"2",t:"either",ph:ST_PH,c:"Retaliation Cadre – Epic Deed",
+ {d:"ret",n:"Fail-safe Detonator",cp:"2",t:"either",ph:ST_PH,c:"Retaliation Cadre – Epic Deed",
   w:"Any phase, just after a BATTLESUIT model from your army is destroyed.",tg:"That model's unit (even if just destroyed).",
   e:"With Deadly Demise: don't roll, choose a 1 or a 6. Without it: roll a D6 for each unit within 6\"; on a 4+ it suffers D3 mortal wounds."},
- {n:"The Shortened Blade",cp:"2",t:"yours",ph:["Movement"],c:"Retaliation Cadre – Strategic Ploy",
+ {d:"ret",n:"The Shortened Blade",cp:"2",t:"yours",ph:["Movement"],c:"Retaliation Cadre – Strategic Ploy",
   w:"Your Movement phase.",tg:"One BATTLESUIT unit from your army arriving by Deep Strike this phase.",
   e:"Set it up anywhere more than 6\" horizontally from all enemy models.",r:"It can't declare a charge this turn."},
- {n:"Stimm Injectors",cp:"1",t:"either",ph:["Shooting","Fight"],c:"Retaliation Cadre – Wargear",
+ {d:"ret",n:"Stimm Injectors",cp:"1",t:"either",ph:["Shooting","Fight"],c:"Retaliation Cadre – Wargear",
   w:"Your opponent's Shooting phase or the Fight phase, just after an enemy unit selects its targets.",tg:"One BATTLESUIT unit from your army it targeted.",e:"Until end of phase, your unit has Feel No Pain 6+."},
- {n:"The Arro'kon Protocol",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Battle Tactic",
+ {d:"ret",n:"The Arro'kon Protocol",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Battle Tactic",
   w:"Your Shooting phase.",tg:"One BATTLESUIT unit from your army that hasn't shot this phase.",
   e:"Until end of phase, its attacks have [SUSTAINED HITS 1] vs units of 6+ models, or [SUSTAINED HITS 2] vs units of 11+ models."},
- {n:"The Torchstar Gambit",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Strategic Ploy",
+ {d:"ret",n:"The Torchstar Gambit",cp:"1",t:"yours",ph:["Shooting"],c:"Retaliation Cadre – Strategic Ploy",
   w:"Your Shooting phase.",tg:"One BATTLESUIT unit from your army that can FLY and has finished its attacks this phase.",
   e:"If it's not in Engagement Range, it can make a Normal move.",r:"If it does, it can't declare a charge this turn."},
- {n:"Grav-Inhibitor Field",cp:"1",t:"theirs",ph:["Charge"],c:"Retaliation Cadre – Strategic Ploy",
+ {d:"ret",n:"Grav-Inhibitor Field",cp:"1",t:"theirs",ph:["Charge"],c:"Retaliation Cadre – Strategic Ploy",
   w:"Your opponent's Charge phase, just after an enemy unit declares a charge.",tg:"One BATTLESUIT unit from your army that is a target of that charge.",
   e:"The enemy unit takes a Battle-shock test, and you roll a D6 per model in it: each 6 is 1 mortal wound."},
+ {d:"mk",n:"Pinpoint Counter-offensive",cp:"1",t:"either",ph:ST_PH,c:"Mont'ka – Battle Tactic",
+  w:"Any phase.",tg:"One T'AU EMPIRE unit (not KROOT) from your army that was just destroyed.",
+  e:"For the rest of the battle, your T'AU EMPIRE units (not KROOT) can re-roll the Hit roll when attacking the enemy unit that destroyed it."},
+ {d:"mk",n:"Aggressive Mobility",cp:"1",t:"yours",ph:["Movement"],c:"Mont'ka – Battle Tactic",
+  w:"Your Movement phase.",tg:"One T'AU EMPIRE unit from your army that hasn't moved this phase.",
+  e:"If it Advances this phase, don't roll: add 6\" to its Move instead."},
+ {d:"mk",n:"Focused Fire",cp:"1",t:"yours",ph:["Shooting"],c:"Mont'ka – Battle Tactic",nr45:1,
+  w:"Start of your Shooting phase.",tg:"Two T'AU EMPIRE units from your army that haven't shot this phase, and one enemy unit.",
+  e:"Until end of phase, both units can only target that enemy unit, and their attacks get +1 AP.",r:"Not in battle rounds 4 or 5."},
+ {d:"mk",n:"Combat Debarkation",cp:"1",t:"yours",ph:["Shooting"],c:"Mont'ka – Battle Tactic",
+  w:"Your Shooting phase.",tg:"One T'AU EMPIRE INFANTRY unit that disembarked from a TRANSPORT this turn.",
+  e:"Until end of phase, it can re-roll the Wound roll against the closest enemy unit. Breachers out of the Devilfish."},
+ {d:"mk",n:"Pulse Onslaught",cp:"2",t:"yours",ph:["Shooting"],c:"Mont'ka – Strategic Ploy",
+  w:"Your Shooting phase.",tg:"One T'AU EMPIRE INFANTRY unit (not KROOT) that has just shot, and one enemy unit (not MONSTER or VEHICLE) it hit.",
+  e:"Until the end of your opponent's next turn, that enemy unit is shaken: −2 Move, and −2 to its Advance and Charge rolls."},
+ {d:"mk",n:"Counterfire Defence Systems",cp:"2",t:"theirs",ph:["Shooting"],c:"Mont'ka – Wargear",
+  w:"Your opponent's Shooting phase, just after an enemy unit selects its targets.",tg:"One T'AU EMPIRE unit from your army it targeted.",
+  e:"Until end of phase, each attack allocated to your unit gets −1 Damage."},
 ];
 const stOpen=new Set();
 function renderStrat(){
@@ -890,14 +1142,14 @@ function renderStrat(){
   let h=`<div class="stfil">${[["all","All"],["yours","My turn"],["theirs","Their turn"]].map(([k,l])=>`<button data-sa="turn" data-v="${k}" class="${f===k?"on":""}">${l}</button>`).join("")}</div>
   <div class="stleg"><span><i style="background:#2E6359"></i>Either turn</span><span><i style="background:#1B506B"></i>Your turn</span><span><i style="background:#A1100B"></i>Opponent's turn</span></div>`;
   for(const p of ST_PH){
-    const list=STRATS.filter(x=>x.ph.includes(p)&&show(x)).sort((a,b)=>a.n.replace(/^The /,"").localeCompare(b.n.replace(/^The /,"")));
+    const list=STRATS.filter(x=>(!x.d||x.d===LIST.det)&&x.ph.includes(p)&&show(x)).sort((a,b)=>a.n.replace(/^The /,"").localeCompare(b.n.replace(/^The /,"")));
     if(!list.length)continue;
     const closed=shut.includes(p);
     h+=`<button class="stph${closed?" closed":""}" data-sa="ph" data-v="${p}"><span>${p} phase<small>${list.length}</small></span><span class="stchev"></span></button>`;
     if(closed)continue;
     for(const x of list){
-      const key=p+"|"+x.n,open=stOpen.has(key),lock=x.nr1&&S.round===1;
-      h+=`<div class="stc ${x.t}${lock?" locked":""}"><button class="stbar${open?" open":""}" data-sa="card" data-v="${esc(key)}"><span class="stchev"></span><span class="stn">${esc(x.n)}</span>${lock?`<span class="stlock">not R1</span>`:""}<span class="stcp">${x.cp}CP</span></button>`;
+      const key=p+"|"+x.n,open=stOpen.has(key),lock=(x.nr1&&S.round===1)||(x.nr45&&S.round>=4);
+      h+=`<div class="stc ${x.t}${lock?" locked":""}"><button class="stbar${open?" open":""}" data-sa="card" data-v="${esc(key)}"><span class="stchev"></span><span class="stn">${esc(x.n)}</span>${lock?`<span class="stlock">${x.nr45?"not R4–5":"not R1"}</span>`:""}<span class="stcp">${x.cp}CP</span></button>`;
       if(open)h+=`<div class="stbody"><div class="stcat">${esc(x.c)}</div><p><b>WHEN</b>${esc(x.w)}</p><p><b>TARGET</b>${esc(x.tg)}</p><p><b>EFFECT</b>${esc(x.e)}</p>${x.r?`<p><b class="r">RESTRICTION</b>${esc(x.r)}</p>`:""}</div>`;
       h+=`</div>`;
     }
@@ -923,7 +1175,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
     const keepOpen=S.open,keepTab=S.tab;S=fresh();S.open=keepOpen;S.tab=keepTab;save();render();window.scrollTo(0,0);
   };
 })();
-load();
+showMenu();
 </script>
 <script>
 if("serviceWorker" in navigator){
