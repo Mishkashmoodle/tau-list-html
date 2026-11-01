@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · Starscythe flamers
+  <br><br>Build: 1 Nov 2026 · Stormsurge airbursting frag
 </div>
 
 <script>
@@ -329,6 +329,7 @@ const W = {
   twin_smart:["Twin smart missile system","R",30,"3","4+","5","0","1",["Heavy","Indirect Fire","Twin-linked"]],
   twin_flamer:["Twin T'au flamer","R",12,"D6","N/A","4","0","1",["Ignores Cover","Torrent","Twin-linked"]],
   footfalls:["Thunderous footfalls","M",0,"3","5+","8","-1","2",[]],
+  twin_afp:["Twin airbursting fragmentation projector","R",24,"D6","4+","3","0","1",["Blast","Heavy","Indirect Fire","Twin-linked"]],
 };
 
 // ===================== UNITS =====================
@@ -661,7 +662,7 @@ const UNITS_MK = [
  {id:"stormsurge",name:"Stormsurge",role:"Titanic Walker",pts:375,tags:["ftgg","tau"],
   buffs:[{key:"tk",label:"Target is TITANIC or TOWERING (Titan-killer)",chip:"Re-roll hits",ranged:["+Re-roll hits"]}],
   stats:["8\"","11","2+","20","7+","6","4+"],
-  groups:[{id:"m",name:"Stormsurge",lbl:"pulse blast cannon · cluster rockets · destroyer missiles · 2 smart missiles · twin flamer",count:1,max:1,W:20,weapons:{pbc_f:1,pbc_d:1,cluster:1,destroyer_m:1,twin_smart:2,twin_flamer:1,footfalls:1}}],
+  groups:[{id:"m",name:"Stormsurge",lbl:"pulse blast cannon · cluster rockets · destroyer missiles · 2 smart missiles · twin airbursting frag projector",count:1,max:1,W:20,weapons:{pbc_f:1,pbc_d:1,cluster:1,destroyer_m:1,twin_smart:2,twin_afp:1,footfalls:1}}],
   ab:[["Pulse blast cannon","Pick focused (24\", 2 shots, S24 AP-6 D12) or dispersed (48\", 6 shots, S10 AP-2 D4) before targeting.","man"],
       ["Support System","Ranged attacks can ignore any or all Hit roll modifiers, including its own damaged −1.","man"],
       ["Titan-killer","Ranged attacks against TITANIC or TOWERING units can re-roll the Hit roll (use the toggle).","auto"],
