@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · Mont'ka drones
+  <br><br>Build: 1 Nov 2026 · Mont'ka list v2 (Kroot, enhancements swapped)
 </div>
 
 <script>
@@ -518,12 +518,12 @@ const UNITS_RET = [
 
 // ===================== LIST 2: MONT'KA "TAKE AND HOLD" =====================
 const UNITS_MK = [
- {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:225,tags:["ftgg","ml","tau","bs"],
+ {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:210,tags:["ftgg","ml","tau","bs"],
   staticKw:[{ranged:["+Re-roll hit 1s"]}],
   buffs:[{key:"full",label:"Target is at full Starting Strength (Fireknife)",chip:"Re-roll all hits",ranged:["+Re-roll hits"],removes:["+Re-roll hit 1s"]}],
   stats:["10\"","5","3+","4","7+","2","–"],
   leader:{name:"Commander in Enforcer Battlesuit",stats:["8\"","5","2+","8","7+","2","4+"],W:8,weapons:{cib_std:1,cib_oc:1,plasma_rifle_enf:1,fists_cmdr:1},
-    ab:[["Coordinated Exploitation","While he leads and this unit is the Observer: Guided units shooting its Spotted unit get Sustained Hits 1. This unit is then NOT Guided itself (turn on the top-bar toggle on the other units' turn).","man"],
+    ab:[["Strategic Conqueror","Start of round 1, pick an objective. While he's on the table, friendly T'au models within range of it get +1 OC.","man"],
         ["Enforcer Commander","Enemy ranged attacks at this unit: worsen their AP by 1 while he leads.","man"],
         ["Shield Generator","4+ invulnerable on the Commander only.","auto"],
         ["Cyclic ion blaster","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"],
@@ -537,13 +537,13 @@ const UNITS_MK = [
       ["Weapon Support System","Ranged attacks can ignore any or all Hit roll modifiers.","man"]],
   core:["Deep Strike"]},
 
- {id:"breachers",name:"Breacher Team",role:"Battleline",pts:145,tags:["ftgg","ml","tau"],
+ {id:"breachers",name:"Breacher Team",role:"Battleline · Coordinated Exploitation spotter",pts:160,tags:["ftgg","ml","tau"],
   buffs:[{key:"bnc",label:"Target within range of an objective (Breach and Clear)",chip:"Re-roll wounds",ranged:["+Re-roll wounds"],melee:["+Re-roll wounds"]}],
   stats:["6\"","3","4+","1","7+","2","–"],
   leader:{name:"Cadre Fireblade",stats:["6\"","3","4+","5","7+","1","–"],W:5,weapons:{fireblade_rifle:1,ccw_fb:1},
     ab:[["Volley Fire","+1 Attack on every ranged weapon in this unit while he leads (applied).","auto"],
         ["Crack Shot","His own ranged attacks: AP becomes -3 on a Critical Wound.","man"],
-        ["Strategic Conqueror","Start of round 1, pick an objective. While he's on the table, friendly T'au models within range of it get +1 OC.","man"],
+        ["Coordinated Exploitation","While he leads and this unit is the Observer: Guided units shooting its Spotted unit get Sustained Hits 1 (top-bar toggle). The Breachers aren't Guided themselves that phase.","man"],
         ["2 Shield Drones","+2 W on the Fireblade (applied: W5).","auto"]]},
   groups:[
     {id:"ui",name:"Breacher Shas'ui",lbl:"guardian drone · gun drone",count:1,max:1,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,gun_drone:1,ccw1:1}},
@@ -590,12 +590,14 @@ const UNITS_MK = [
       ["Transport","12 T'AU EMPIRE INFANTRY (no Battlesuits, Kroot or Vespid). Combat Debarkation (1CP) re-rolls wounds for a unit that got out this turn.","info"]],
   core:["Deadly Demise D3"]},
 
- {id:"broadside",name:"Broadside Battlesuit",role:"Battlesuit · single Shas'vre",pts:75,tags:["ftgg","tau","bs"],
-  stats:["5\"","6","2+","8","7+","2","–"],
-  groups:[{id:"m",name:"Broadside Shas'vre",lbl:"heavy rail rifle · 2 missile drones",count:1,max:1,W:8,weapons:{heavy_rail:1,missile_drone:2,crushing_bulk:1}}],
-  ab:[["Advanced Armour","Feel No Pain 4+ against mortal wounds only.","man"],
-      ["Heavy","+1 to hit if it moved 3\" or less, isn't engaged and wasn't set up this turn (use the toggle).","auto"]],
-  core:[]},
+ {id:"carnivores",name:"Kroot Carnivores",role:"Infantry · 10",pts:65,tags:["tau","kroot"],
+  stats:["7\"","3","6+","1","7+","2","–"],
+  groups:[
+    {id:"lq",name:"Long-quill",lbl:"kroot rifle · kroot pistol",count:1,max:1,W:1,weapons:{kroot_rifle:1,kroot_pistol:1,ccw_kroot:1}},
+    {id:"kc",name:"Kroot Carnivores (rifle)",count:9,max:9,W:1,weapons:{kroot_rifle:1,ccw_kroot:1}}],
+  ab:[["Fieldcraft","End of your Command phase: an objective you control stays yours even after you leave it, until your opponent takes it.","man"],
+      ["Not For the Greater Good","Kroot can't be Guided or spot, but Killing Blow still gives their guns Assault in rounds 1–3.","info"]],
+  core:["Scouts 7\"","Stealth"]},
 
  {id:"starscythe",name:"Crisis Starscythe",role:"Battlesuits · marker drone",pts:115,tags:["ftgg","ml","tau","bs"],apUp:true,
   buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (no Starscythe AP)",chip:"No +1 AP",ranged:[]}],
@@ -669,8 +671,8 @@ const UNITS_MK = [
 const LISTS={
  ret:{id:"ret",name:"Retaliation",det:"ret",detName:"Retaliation Cadre",disp:"Priority Assets",pts:1995,key:"tau-cadre-v3",units:UNITS_RET,
    blurb:"Battlesuit brawl: Bonded Heroes gives suits +1 S within 12\" and +1 AP within 8\" all game. Kroot screen and score."},
- mk:{id:"mk",name:"Take and Hold",det:"mk",detName:"Mont'ka",disp:"Take and Hold",pts:2000,key:"tau-montka-v1",units:UNITS_MK,
-   blurb:"Alpha strike: rounds 1–3 every gun has Assault and Guided units get Lethal Hits. Stormsurge, Riptide and Sky Ray from range."},
+ mk:{id:"mk",name:"Take and Hold",det:"mk",detName:"Mont'ka",disp:"Take and Hold",pts:1990,key:"tau-montka-v1",units:UNITS_MK,
+   blurb:"Alpha strike: rounds 1–3 every gun has Assault and Guided units get Lethal Hits. Stormsurge, Riptide and Sky Ray from range, Kroot to hold objectives."},
 };
 const LIST_KEY="tau-active-list";
 let LIST=LISTS.ret, UNITS=LIST.units, KEY=LIST.key;
