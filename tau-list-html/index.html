@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · list menu + Mont'ka list
+  <br><br>Build: 1 Nov 2026 · Mont'ka drones
 </div>
 
 <script>
@@ -518,7 +518,7 @@ const UNITS_RET = [
 
 // ===================== LIST 2: MONT'KA "TAKE AND HOLD" =====================
 const UNITS_MK = [
- {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:225,tags:["ftgg","tau","bs"],
+ {id:"fireknife",name:"Crisis Fireknife",role:"Battlesuits · Warlord attached",pts:225,tags:["ftgg","ml","tau","bs"],
   staticKw:[{ranged:["+Re-roll hit 1s"]}],
   buffs:[{key:"full",label:"Target is at full Starting Strength (Fireknife)",chip:"Re-roll all hits",ranged:["+Re-roll hits"],removes:["+Re-roll hit 1s"]}],
   stats:["10\"","5","3+","4","7+","2","–"],
@@ -529,29 +529,33 @@ const UNITS_MK = [
         ["Cyclic ion blaster","Pick standard OR overcharge before targeting. Overcharge is Hazardous.","man"],
         ["2 Shield Drones","+2 W on the Commander (applied: W8).","auto"]]},
   groups:[
-    {id:"vre",name:"Fireknife Shas'vre",lbl:"missile pod · plasma rifle",count:1,max:1,W:4,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
-    {id:"ui",name:"Fireknife Shas'ui",lbl:"missile pod · plasma rifle",count:2,max:2,W:4,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}}],
+    {id:"vre",name:"Fireknife Shas'vre (marker + shield drone, W5)",lbl:"missile pod · plasma rifle",count:1,max:1,W:5,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
+    {id:"ui1",name:"Fireknife Shas'ui A (marker + shield drone, W5)",lbl:"missile pod · plasma rifle",count:1,max:1,W:5,weapons:{missile_pod:1,plasma_rifle:1,fists_crisis:1}},
+    {id:"ui2",name:"Fireknife Shas'ui B (shield + gun drone, W5)",lbl:"missile pod · plasma rifle · gun drone",count:1,max:1,W:5,weapons:{missile_pod:1,plasma_rifle:1,gun_drone:1,fists_crisis:1}}],
   ab:[["Fireknife","Ranged: re-roll Hit rolls of 1 (shown). Vs a target at full Starting Strength, re-roll all Hit rolls (use the toggle).","auto"],
+      ["Marker Drones","Unit has MARKERLIGHT and can Observe even after Advancing.","man"],
       ["Weapon Support System","Ranged attacks can ignore any or all Hit roll modifiers.","man"]],
   core:["Deep Strike"]},
 
  {id:"breachers",name:"Breacher Team",role:"Battleline",pts:145,tags:["ftgg","ml","tau"],
   buffs:[{key:"bnc",label:"Target within range of an objective (Breach and Clear)",chip:"Re-roll wounds",ranged:["+Re-roll wounds"],melee:["+Re-roll wounds"]}],
   stats:["6\"","3","4+","1","7+","2","–"],
-  leader:{name:"Cadre Fireblade",stats:["6\"","3","4+","3","7+","1","–"],W:3,weapons:{fireblade_rifle:1,ccw_fb:1},
+  leader:{name:"Cadre Fireblade",stats:["6\"","3","4+","5","7+","1","–"],W:5,weapons:{fireblade_rifle:1,ccw_fb:1},
     ab:[["Volley Fire","+1 Attack on every ranged weapon in this unit while he leads (applied).","auto"],
         ["Crack Shot","His own ranged attacks: AP becomes -3 on a Critical Wound.","man"],
-        ["Strategic Conqueror","Start of round 1, pick an objective. While he's on the table, friendly T'au models within range of it get +1 OC.","man"]]},
+        ["Strategic Conqueror","Start of round 1, pick an objective. While he's on the table, friendly T'au models within range of it get +1 OC.","man"],
+        ["2 Shield Drones","+2 W on the Fireblade (applied: W5).","auto"]]},
   groups:[
-    {id:"ui",name:"Breacher Shas'ui",lbl:"pulse blaster · pulse pistol",count:1,max:1,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,ccw1:1}},
+    {id:"ui",name:"Breacher Shas'ui",lbl:"guardian drone · gun drone",count:1,max:1,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,gun_drone:1,ccw1:1}},
     {id:"fw",name:"Breacher Fire Warriors",count:9,max:9,W:1,weapons:{pulse_blaster:1,pulse_pistol:1,ccw1:1}}],
   extras:{stationary:{label:"Remained stationary (DS8 turret)",group:"ui",weapon:"support_turret"}},
   ab:[["Breach and Clear","Re-roll Wound rolls vs enemy within range of an objective (use the toggle).","auto"],
+      ["Guardian Drone","Enemy ranged attacks at this unit: -1 to Wound.","man"],
       ["Markerlight","This unit has MARKERLIGHT natively — its spotting grants Ignores Cover.","man"],
       ["DS8 Support Turret","Toggle above when the unit Remains Stationary.","auto"]],
   core:[]},
 
- {id:"sunforge",name:"Crisis Sunforge",role:"Battlesuits · +Commander Farsight",pts:195,tags:["ftgg","tau","bs"],
+ {id:"sunforge",name:"Crisis Sunforge",role:"Battlesuits · +Commander Farsight",pts:195,tags:["ftgg","ml","tau","bs"],
   buffs:[{key:"mv",label:"Target is a MONSTER or VEHICLE (Sunforge)",chip:"Re-roll wounds & damage",ranged:["+Re-roll wounds","+Re-roll damage"]},
          {key:"sb",label:"Target within 9\" (Way of the Short Blade)",chip:"+1 to wound",ranged:["+1 to wound"],melee:["+1 to wound"],leader:true}],
   stats:["10\"","5","3+","4","7+","2","4+"],
@@ -560,9 +564,11 @@ const UNITS_MK = [
         ["Puretide's Teachings","Once per battle round, a Stratagem used on this unit costs 1 CP less.","man"],
         ["Independent Power","No Ethereals in the army.","info"]]},
   groups:[
-    {id:"vre",name:"Sunforge Shas'vre",lbl:"2 fusion blasters",count:1,max:1,W:4,weapons:{fusion_blaster:2,fists_crisis:1}},
-    {id:"ui",name:"Sunforge Shas'ui",lbl:"2 fusion blasters",count:2,max:2,W:4,weapons:{fusion_blaster:2,fists_crisis:1}}],
-  ab:[["Sunforge","Ranged vs MONSTER or VEHICLE: re-roll Wound rolls and Damage rolls (use the toggle).","auto"]],
+    {id:"vre",name:"Sunforge Shas'vre (marker + shield drone, W5)",lbl:"2 fusion blasters",count:1,max:1,W:5,weapons:{fusion_blaster:2,fists_crisis:1}},
+    {id:"ui1",name:"Sunforge Shas'ui A (marker + shield drone, W5)",lbl:"2 fusion blasters",count:1,max:1,W:5,weapons:{fusion_blaster:2,fists_crisis:1}},
+    {id:"ui2",name:"Sunforge Shas'ui B (shield + gun drone, W5)",lbl:"2 fusion blasters · gun drone",count:1,max:1,W:5,weapons:{fusion_blaster:2,gun_drone:1,fists_crisis:1}}],
+  ab:[["Sunforge","Ranged vs MONSTER or VEHICLE: re-roll Wound rolls and Damage rolls (use the toggle).","auto"],
+      ["Marker Drones","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
   core:["Deep Strike","4+ invulnerable save"]},
 
  {id:"twinlance",name:"The Twin Lance",role:"Epic Hero · Ri'Lantar & Ri'Locai",pts:240,tags:["ftgg","tau","bs"],
@@ -586,7 +592,7 @@ const UNITS_MK = [
 
  {id:"broadside",name:"Broadside Battlesuit",role:"Battlesuit · single Shas'vre",pts:75,tags:["ftgg","tau","bs"],
   stats:["5\"","6","2+","8","7+","2","–"],
-  groups:[{id:"m",name:"Broadside Shas'vre",lbl:"heavy rail rifle",count:1,max:1,W:8,weapons:{heavy_rail:1,crushing_bulk:1}}],
+  groups:[{id:"m",name:"Broadside Shas'vre",lbl:"heavy rail rifle · 2 missile drones",count:1,max:1,W:8,weapons:{heavy_rail:1,missile_drone:2,crushing_bulk:1}}],
   ab:[["Advanced Armour","Feel No Pain 4+ against mortal wounds only.","man"],
       ["Heavy","+1 to hit if it moved 3\" or less, isn't engaged and wasn't set up this turn (use the toggle).","auto"]],
   core:[]},
@@ -606,7 +612,7 @@ const UNITS_MK = [
  {id:"pathfinders",name:"Pathfinder Team",role:"Infantry · 10",pts:100,tags:["ftgg","ml","tau","pf"],
   stats:["7\"","3","4+","1","7+","1","–"],
   groups:[
-    {id:"ui",name:"Pathfinder Shas'ui",lbl:"pulse carbine · grav-inhibitor drone",count:1,max:1,W:1,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
+    {id:"ui",name:"Pathfinder Shas'ui (2 shield drones, W3)",lbl:"pulse carbine · grav-inhibitor drone",count:1,max:1,W:3,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
     {id:"pc",name:"Pathfinders (carbine)",count:5,max:5,W:1,weapons:{pulse_carbine:1,pulse_pistol:1,ccw_pf:1}},
     {id:"gl",name:"Pathfinder w/ grenade launcher",lbl:"pulse carbine · semi-auto grenade launcher",count:1,max:1,W:1,weapons:{pulse_carbine:1,sagl_emp:1,sagl_fus:1,pulse_pistol:1,ccw_pf:1}},
     {id:"ir",name:"Pathfinders w/ ion rifle",count:3,max:3,W:1,weapons:{ion_rifle_std:1,ion_rifle_oc:1,pulse_pistol:1,ccw_pf:1}}],
@@ -640,7 +646,7 @@ const UNITS_MK = [
  {id:"stealth",name:"Stealth Battlesuits",role:"Infantry · 5",pts:100,tags:["ftgg","ml","tau","bs"],
   stats:["8\"","4","3+","2","7+","1","–"],
   groups:[
-    {id:"vre",name:"Stealth Shas'vre",lbl:"burst cannon",count:1,max:1,W:2,weapons:{burst_cannon:1,fists_stealth:1}},
+    {id:"vre",name:"Stealth Shas'vre",lbl:"burst cannon · gun drone · marker drone",count:1,max:1,W:2,weapons:{burst_cannon:1,gun_drone:1,fists_stealth:1}},
     {id:"bc",name:"Stealth Shas'ui",lbl:"burst cannons · one carries the homing beacon",count:4,max:4,W:2,weapons:{burst_cannon:1,fists_stealth:1}}],
   extras:{beacon:{label:"Homing Beacon used (once per battle)"}},
   ab:[["Forward Observers","When this unit is the Observer: the Guided unit re-rolls Hit 1s and Wound 1s vs the Spotted unit (set \"Spotter: Stealth Suits\" on the unit being guided).","auto"],
