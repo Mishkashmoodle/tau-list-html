@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 1 Nov 2026 · Stormsurge airbursting frag
+  <br><br>Build: 5 Nov 2026 · Stealth fusion blasters
 </div>
 
 <script>
@@ -652,7 +652,8 @@ const UNITS_MK = [
   stats:["8\"","4","3+","2","7+","1","–"],
   groups:[
     {id:"vre",name:"Stealth Shas'vre",lbl:"burst cannon · gun drone · marker drone",count:1,max:1,W:2,weapons:{burst_cannon:1,gun_drone:1,fists_stealth:1}},
-    {id:"bc",name:"Stealth Shas'ui",lbl:"burst cannons · one carries the homing beacon",count:4,max:4,W:2,weapons:{burst_cannon:1,fists_stealth:1}}],
+    {id:"bc",name:"Shas'ui (burst cannon)",lbl:"one carries the homing beacon",count:2,max:2,W:2,weapons:{burst_cannon:1,fists_stealth:1}},
+    {id:"fb",name:"Shas'ui (fusion blaster)",count:2,max:2,W:2,weapons:{fusion_blaster:1,fists_stealth:1}}],
   extras:{beacon:{label:"Homing Beacon used (once per battle)"}},
   ab:[["Forward Observers","When this unit is the Observer: the Guided unit re-rolls Hit 1s and Wound 1s vs the Spotted unit (set \"Spotter: Stealth Suits\" on the unit being guided).","auto"],
       ["Homing Beacon","Once per battle: Rapid Ingress for 0 CP, set up within 3\" of this unit and >8\" from enemies.","man"],
