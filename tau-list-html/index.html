@@ -243,7 +243,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 12 Nov 2026 · ion rifles + all-flamer Starscythes
+  <br><br>Build: 12 Nov 2026 · Starscythe 2nd marker drone
 </div>
 
 <script>
@@ -607,11 +607,11 @@ const UNITS_MK = [
   stats:["10\"","5","3+","4","7+","2","–"],
   groups:[
     {id:"vre",name:"Starscythe Shas'vre (marker + shield drone, W5)",lbl:"2 T'au flamers",count:1,max:1,W:5,weapons:{tau_flamer:2,fists_crisis:1}},
-    {id:"ui1",name:"Starscythe Shas'ui A (gun + shield drone, W5)",lbl:"2 T'au flamers · gun drone",count:1,max:1,W:5,weapons:{tau_flamer:2,gun_drone:1,fists_crisis:1}},
+    {id:"ui1",name:"Starscythe Shas'ui A (marker + shield drone, W5)",lbl:"2 T'au flamers",count:1,max:1,W:5,weapons:{tau_flamer:2,fists_crisis:1}},
     {id:"ui2",name:"Starscythe Shas'ui B (gun + shield drone, W5)",lbl:"2 T'au flamers · gun drone",count:1,max:1,W:5,weapons:{tau_flamer:2,gun_drone:1,fists_crisis:1}}],
   ab:[["Starscythe","Ranged attacks get +1 AP, except against MONSTERS and VEHICLES (applied; use the toggle to take it off).","auto"],
       ["Battlesuit Support System","Can shoot in a turn it Fell Back.","man"],
-      ["Marker Drone","Unit has MARKERLIGHT and can Observe even after Advancing.","man"]],
+      ["Marker Drones (2)","Unit has MARKERLIGHT and can Observe even after Advancing. Two drones keep it if one suit dies. Best spotter in the list: flamers gain nothing from being Guided, so it loses nothing by observing.","man"]],
   core:["Deep Strike"]},
 
  {id:"pathfinders",name:"Pathfinder Team",role:"Infantry · 10",pts:95,tags:["ftgg","ml","tau","pf"],
