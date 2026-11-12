@@ -244,7 +244,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   Cyan chips / ochre numbers = modifiers the app applied. <b style="color:var(--ochre)">Ochre-tagged</b> abilities are ones you still have to remember yourself.
   <br><br><button id="reset">Reset game (models, wounds, round 1, secondaries)</button>
   <br><br><button id="switchBtn2" style="color:var(--cyan)">Switch army list</button>
-  <br><br>Build: 12 Nov 2026 · Mont'ka or Kauyon picker
+  <br><br>Build: 12 Nov 2026 · tidier re-rolls
 </div>
 
 <script>
@@ -866,7 +866,13 @@ function unitCard(u,st){
   for(const b of (u.buffs||[]))if(st.t[b.key]&&!(b.leader&&!st.leader))chips.push(`<span class="chip">${esc(b.chip)}</span>`);
   const sp=Number(st.ml)||0;
   if(guided&&sp>=1)chips.push('<span class="chip">Ignores Cover</span>');
-  if(guided&&sp===2)chips.push('<span class="chip">Re-roll 1s (Stealth)</span>');
+  if(guided&&sp===2){
+    const act=(u.buffs||[]).filter(b=>st.t[b.key]&&!(b.leader&&!st.leader)).flatMap(b=>b.ranged||[]);
+    const fh=act.includes("+Re-roll hits"),fw=act.includes("+Re-roll wounds");
+    if(!fh&&!fw)chips.push('<span class="chip">Re-roll 1s (Stealth)</span>');
+    else if(!fh)chips.push('<span class="chip">Re-roll hit 1s (Stealth)</span>');
+    else if(!fw)chips.push('<span class="chip">Re-roll wound 1s (Stealth)</span>');
+  }
   if(u.id==="breachers"&&st.leader)chips.push('<span class="chip">+1 A</span>');
   if(st.heavy&&hasHeavy(u,st))chips.push('<span class="chip">Heavy +1</span>');
   if(u.id==="sunforge"&&st.leader)chips.push('<span class="chip o">+1 wound ≤9"</span>');
@@ -1032,6 +1038,10 @@ function weaponTable(title,rows,u,st,m){
       for(const k of add){const base=k.replace(/^\+/,"");if(!kw.includes(base)&&!kw.includes(k))kw.push(k);}
       buff=true;
     }
+    // a full re-roll already covers the 1s — don't show both
+    const has=t=>kw.includes(t)||kw.includes("+"+t);
+    if(has("Re-roll hits"))kw=kw.filter(k=>k.replace(/^\+/,"")!=="Re-roll hit 1s");
+    if(has("Re-roll wounds"))kw=kw.filter(k=>k.replace(/^\+/,"")!=="Re-roll wound 1s");
     if(dmg)kw.push("−1 to hit (damaged)");
     const rangeStr=isR?range+'"':"Melee";
     const kwHtml=kw.map(k=>k.startsWith("+")||k.startsWith("−")?`<span class="plus">${esc(k)}</span>`:esc(k)).join(" · ");
